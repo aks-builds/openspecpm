@@ -9,207 +9,163 @@
         <mxCell id="title" value="OpenSpecPM — System Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1" vertex="1" parent="1">
           <mxGeometry x="40" y="20" width="1620" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="subtitle" value="Spec-driven, BDD-shaped PM for any backend. Replace placeholder boxes with real brand logos in the draw.io UI as needed." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#666666" vertex="1" parent="1">
+        <mxCell id="subtitle" value="Top-down flow. Each adapter sits directly above the external system it talks to. Swap brand boxes for real logos in the draw.io UI." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#666666" vertex="1" parent="1">
           <mxGeometry x="40" y="56" width="1620" height="24" as="geometry" />
         </mxCell>
 
-        <!-- ===== LAYER 1: USERS ===== -->
-        <mxCell id="lane_users" value="Users" style="swimlane;fontStyle=1;horizontal=1;startSize=24;fillColor=#DAE8FC;strokeColor=#6C8EBF;rounded=1;swimlaneFillColor=#FFFFFF" vertex="1" parent="1">
-          <mxGeometry x="40" y="100" width="1620" height="120" as="geometry" />
+        <!-- ===== LAYER 1: USERS (3 boxes, centered) ===== -->
+        <mxCell id="user_pm" value="Project Manager / BA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="380" y="110" width="220" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="user_pm" value="Project Manager / BA&#10;(non-technical)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12" vertex="1" parent="lane_users">
-          <mxGeometry x="40" y="50" width="220" height="56" as="geometry" />
+        <mxCell id="user_dev" value="Developer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="740" y="110" width="220" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="user_dev" value="Developer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12" vertex="1" parent="lane_users">
-          <mxGeometry x="290" y="50" width="220" height="56" as="geometry" />
-        </mxCell>
-        <mxCell id="user_agent" value="AI Agent (Claude Code)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#D97757;fontSize=12;fontStyle=1" vertex="1" parent="lane_users">
-          <mxGeometry x="540" y="50" width="220" height="56" as="geometry" />
-        </mxCell>
-        <mxCell id="user_human" value="Human reviewer&#10;(spec sign-off)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12" vertex="1" parent="lane_users">
-          <mxGeometry x="790" y="50" width="220" height="56" as="geometry" />
+        <mxCell id="user_agent" value="AI Agent (Claude Code)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#D97757;fontSize=13;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1100" y="110" width="220" height="60" as="geometry" />
         </mxCell>
 
-        <!-- ===== LAYER 2: ENTRY SURFACES ===== -->
-        <mxCell id="lane_entry" value="Entry surfaces" style="swimlane;fontStyle=1;horizontal=1;startSize=24;fillColor=#FFF2CC;strokeColor=#D6B656;rounded=1;swimlaneFillColor=#FFFFFF" vertex="1" parent="1">
-          <mxGeometry x="40" y="240" width="1620" height="120" as="geometry" />
+        <!-- ===== LAYER 2: ENTRY (2 boxes, centered) ===== -->
+        <mxCell id="entry_skill" value="Agent Skill&#10;skill/openspecpm/SKILL.md&#10;&#10;Routes natural-language intent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#D97757;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="500" y="220" width="320" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="entry_skill" value="Agent Skill&#10;skill/openspecpm/SKILL.md" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#D97757;fontSize=12;fontStyle=1" vertex="1" parent="lane_entry">
-          <mxGeometry x="40" y="50" width="280" height="56" as="geometry" />
-        </mxCell>
-        <mxCell id="entry_cli" value="Node CLI&#10;cli/bin/openspecpm.js (Commander)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C5E1A5;strokeColor=#558B2F;fontSize=12;fontStyle=1" vertex="1" parent="lane_entry">
-          <mxGeometry x="350" y="50" width="280" height="56" as="geometry" />
-        </mxCell>
-        <mxCell id="entry_refs" value="Skill references&#10;conventions / plan / structure / sync / execute / track" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11" vertex="1" parent="lane_entry">
-          <mxGeometry x="660" y="50" width="320" height="56" as="geometry" />
+        <mxCell id="entry_cli" value="Node CLI&#10;cli/bin/openspecpm.js&#10;&#10;Commander dispatch + audit wrapper" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C5E1A5;strokeColor=#558B2F;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="880" y="220" width="320" height="90" as="geometry" />
         </mxCell>
 
-        <!-- ===== LAYER 3: COMMAND DISPATCH ===== -->
-        <mxCell id="lane_cmds" value="Commands  (cli/src/commands/*.js)" style="swimlane;fontStyle=1;horizontal=1;startSize=24;fillColor=#D5E8D4;strokeColor=#82B366;rounded=1;swimlaneFillColor=#FFFFFF" vertex="1" parent="1">
-          <mxGeometry x="40" y="380" width="1620" height="180" as="geometry" />
+        <!-- ===== LAYER 3: COMMANDS (single swimlane with 5 groups inline) ===== -->
+        <mxCell id="lane_cmds" value="Commands  (cli/src/commands/*.js)" style="swimlane;fontStyle=1;horizontal=1;startSize=26;fillColor=#D5E8D4;strokeColor=#82B366;rounded=1;swimlaneFillColor=#FFFFFF;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="40" y="350" width="1620" height="130" as="geometry" />
         </mxCell>
-        <mxCell id="cmd_setup" value="Setup&#10;init • doctor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8" vertex="1" parent="lane_cmds">
-          <mxGeometry x="40" y="50" width="280" height="110" as="geometry" />
+        <mxCell id="cmd_setup" value="① Setup&#10;init • doctor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="lane_cmds">
+          <mxGeometry x="20" y="34" width="300" height="84" as="geometry" />
         </mxCell>
-        <mxCell id="cmd_plan" value="Plan&#10;propose • decompose" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8" vertex="1" parent="lane_cmds">
-          <mxGeometry x="350" y="50" width="280" height="110" as="geometry" />
+        <mxCell id="cmd_plan" value="② Plan&#10;propose • decompose" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="lane_cmds">
+          <mxGeometry x="340" y="34" width="300" height="84" as="geometry" />
         </mxCell>
-        <mxCell id="cmd_sync" value="Sync&#10;sync • comment • reconcile • assign • bug-report" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8" vertex="1" parent="lane_cmds">
-          <mxGeometry x="660" y="50" width="280" height="110" as="geometry" />
+        <mxCell id="cmd_sync" value="③ Sync&#10;sync • comment • reconcile&#10;assign • bug-report" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="lane_cmds">
+          <mxGeometry x="660" y="34" width="300" height="84" as="geometry" />
         </mxCell>
-        <mxCell id="cmd_track" value="Track&#10;status • standup • next • blocked&#10;validate • search • watch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8" vertex="1" parent="lane_cmds">
-          <mxGeometry x="970" y="50" width="280" height="110" as="geometry" />
+        <mxCell id="cmd_track" value="④ Track&#10;status • standup • next&#10;blocked • validate • search • watch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="lane_cmds">
+          <mxGeometry x="980" y="34" width="300" height="84" as="geometry" />
         </mxCell>
-        <mxCell id="cmd_exec" value="Execute / Ship&#10;fan-out • ship • help-table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8" vertex="1" parent="lane_cmds">
-          <mxGeometry x="1280" y="50" width="280" height="110" as="geometry" />
-        </mxCell>
-
-        <!-- ===== LAYER 4: CORE SERVICES ===== -->
-        <mxCell id="lane_core" value="Core services  (cli/src/*)" style="swimlane;fontStyle=1;horizontal=1;startSize=24;fillColor=#FFE6CC;strokeColor=#D79B00;rounded=1;swimlaneFillColor=#FFFFFF" vertex="1" parent="1">
-          <mxGeometry x="40" y="580" width="1620" height="140" as="geometry" />
-        </mxCell>
-        <mxCell id="core_bridge" value="OpenSpec Bridge&#10;openspec-bridge.js&#10;(version probe + ACL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11" vertex="1" parent="lane_core">
-          <mxGeometry x="40" y="50" width="200" height="76" as="geometry" />
-        </mxCell>
-        <mxCell id="core_bdd" value="BDD Linter&#10;bdd/linter.js + templates.js&#10;(soft/hard, Gherkin heuristics)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11" vertex="1" parent="lane_core">
-          <mxGeometry x="260" y="50" width="220" height="76" as="geometry" />
-        </mxCell>
-        <mxCell id="core_track" value="Tracking&#10;tracking.js&#10;(deps, status, recent)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11" vertex="1" parent="lane_core">
-          <mxGeometry x="500" y="50" width="200" height="76" as="geometry" />
-        </mxCell>
-        <mxCell id="core_audit" value="Audit Log&#10;audit.js&#10;(JSONL, secrets scrubbed)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11" vertex="1" parent="lane_core">
-          <mxGeometry x="720" y="50" width="200" height="76" as="geometry" />
-        </mxCell>
-        <mxCell id="core_notify" value="Notify + Telemetry&#10;notify.js • telemetry.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11" vertex="1" parent="lane_core">
-          <mxGeometry x="940" y="50" width="200" height="76" as="geometry" />
-        </mxCell>
-        <mxCell id="core_http" value="HTTP + RateLimit&#10;http.js • ratelimit.js&#10;(Basic auth, token bucket)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11" vertex="1" parent="lane_core">
-          <mxGeometry x="1160" y="50" width="200" height="76" as="geometry" />
-        </mxCell>
-        <mxCell id="core_config" value="Config + Frontmatter&#10;config.js • frontmatter.js&#10;(.openspecpm/config.json)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11" vertex="1" parent="lane_core">
-          <mxGeometry x="1380" y="50" width="200" height="76" as="geometry" />
+        <mxCell id="cmd_exec" value="⑤ Execute / Ship&#10;fan-out • ship • help-table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="lane_cmds">
+          <mxGeometry x="1300" y="34" width="300" height="84" as="geometry" />
         </mxCell>
 
-        <!-- ===== LAYER 5: ADAPTER CONTRACT ===== -->
-        <mxCell id="lane_adapters" value="Adapter contract  (cli/src/adapters/* — 9 methods + capabilities)" style="swimlane;fontStyle=1;horizontal=1;startSize=24;fillColor=#E1D5E7;strokeColor=#9673A6;rounded=1;swimlaneFillColor=#FFFFFF" vertex="1" parent="1">
-          <mxGeometry x="40" y="740" width="1620" height="130" as="geometry" />
+        <!-- ===== LAYER 4: CORE SERVICES (4 grouped boxes, fewer cells) ===== -->
+        <mxCell id="lane_core" value="Core services  (cli/src/*)" style="swimlane;fontStyle=1;horizontal=1;startSize=26;fillColor=#FFE6CC;strokeColor=#D79B00;rounded=1;swimlaneFillColor=#FFFFFF;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="40" y="520" width="1620" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="ad_base" value="Adapter base&#10;base.js&#10;(interface + capabilities)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#9673A6;fontSize=11;fontStyle=2" vertex="1" parent="lane_adapters">
-          <mxGeometry x="40" y="50" width="220" height="64" as="geometry" />
+        <mxCell id="core_spec" value="OpenSpec Bridge + BDD&#10;&#10;openspec-bridge.js&#10;bdd/linter.js + templates.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="lane_core">
+          <mxGeometry x="20" y="34" width="380" height="94" as="geometry" />
         </mxCell>
-        <mxCell id="ad_github" value="GitHub&#10;github.js (gh CLI, depth=2)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#222222;strokeColor=#000000;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="lane_adapters">
-          <mxGeometry x="280" y="50" width="240" height="64" as="geometry" />
+        <mxCell id="core_track" value="Tracking + Audit&#10;&#10;tracking.js (deps, status, recent)&#10;audit.js (JSONL, secrets scrubbed)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="lane_core">
+          <mxGeometry x="420" y="34" width="380" height="94" as="geometry" />
         </mxCell>
-        <mxCell id="ad_azure" value="Azure DevOps&#10;azure.js (REST + PAT, depth=4)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0078D7;strokeColor=#005A9E;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="lane_adapters">
-          <mxGeometry x="540" y="50" width="240" height="64" as="geometry" />
+        <mxCell id="core_http" value="HTTP + Rate-limit&#10;&#10;http.js (Basic auth, JSON)&#10;ratelimit.js (token bucket per adapter)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="lane_core">
+          <mxGeometry x="820" y="34" width="380" height="94" as="geometry" />
         </mxCell>
-        <mxCell id="ad_jira" value="Jira&#10;jira.js (REST v3 + token, depth=3)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0052CC;strokeColor=#003580;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="lane_adapters">
-          <mxGeometry x="800" y="50" width="240" height="64" as="geometry" />
-        </mxCell>
-        <mxCell id="ad_linear" value="Linear&#10;linear.js (GraphQL, depth=2)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5E6AD2;strokeColor=#3F47A0;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="lane_adapters">
-          <mxGeometry x="1060" y="50" width="240" height="64" as="geometry" />
-        </mxCell>
-        <mxCell id="ad_gitlab" value="GitLab&#10;gitlab.js (REST v4, depth=2)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FC6D26;strokeColor=#C44A19;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="lane_adapters">
-          <mxGeometry x="1320" y="50" width="240" height="64" as="geometry" />
+        <mxCell id="core_io" value="Config + Notify + Telemetry&#10;&#10;config.js • frontmatter.js&#10;notify.js • telemetry.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="lane_core">
+          <mxGeometry x="1220" y="34" width="380" height="94" as="geometry" />
         </mxCell>
 
-        <!-- ===== LAYER 6: EXTERNAL SYSTEMS ===== -->
-        <mxCell id="lane_ext" value="External systems" style="swimlane;fontStyle=1;horizontal=1;startSize=24;fillColor=#F5F5F5;strokeColor=#666666;rounded=1;swimlaneFillColor=#FFFFFF" vertex="1" parent="1">
-          <mxGeometry x="40" y="890" width="1620" height="130" as="geometry" />
+        <!-- ===== LAYER 5: ADAPTER CONTRACT (5 boxes evenly spaced to match externals below) ===== -->
+        <mxCell id="lane_adapters" value="Adapter contract  (cli/src/adapters/*  —  9 methods + capabilities())" style="swimlane;fontStyle=1;horizontal=1;startSize=26;fillColor=#E1D5E7;strokeColor=#9673A6;rounded=1;swimlaneFillColor=#FFFFFF;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="40" y="700" width="1620" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="ext_openspec" value="OpenSpec CLI&#10;@fission-ai/openspec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#00897B;fontSize=11;strokeWidth=2" vertex="1" parent="lane_ext">
-          <mxGeometry x="40" y="50" width="180" height="60" as="geometry" />
+        <mxCell id="ad_github" value="GitHub&#10;github.js · depth 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#222222;strokeColor=#000000;fontColor=#FFFFFF;fontSize=12;fontStyle=1" vertex="1" parent="lane_adapters">
+          <mxGeometry x="40" y="34" width="290" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="ext_github" value="GitHub Issues / Projects" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#222222;fontSize=11;strokeWidth=2" vertex="1" parent="lane_ext">
-          <mxGeometry x="240" y="50" width="180" height="60" as="geometry" />
+        <mxCell id="ad_azure" value="Azure DevOps&#10;azure.js · depth 4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0078D7;strokeColor=#005A9E;fontColor=#FFFFFF;fontSize=12;fontStyle=1" vertex="1" parent="lane_adapters">
+          <mxGeometry x="360" y="34" width="290" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="ext_azure" value="Azure DevOps Boards" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D7;fontSize=11;strokeWidth=2" vertex="1" parent="lane_ext">
-          <mxGeometry x="440" y="50" width="180" height="60" as="geometry" />
+        <mxCell id="ad_jira" value="Jira&#10;jira.js · depth 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0052CC;strokeColor=#003580;fontColor=#FFFFFF;fontSize=12;fontStyle=1" vertex="1" parent="lane_adapters">
+          <mxGeometry x="680" y="34" width="290" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="ext_jira" value="Jira Cloud / Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0052CC;fontSize=11;strokeWidth=2" vertex="1" parent="lane_ext">
-          <mxGeometry x="640" y="50" width="180" height="60" as="geometry" />
+        <mxCell id="ad_linear" value="Linear&#10;linear.js · depth 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5E6AD2;strokeColor=#3F47A0;fontColor=#FFFFFF;fontSize=12;fontStyle=1" vertex="1" parent="lane_adapters">
+          <mxGeometry x="1000" y="34" width="290" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="ext_linear" value="Linear" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5E6AD2;fontSize=11;strokeWidth=2" vertex="1" parent="lane_ext">
-          <mxGeometry x="840" y="50" width="180" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="ext_gitlab" value="GitLab Issues" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#FC6D26;fontSize=11;strokeWidth=2" vertex="1" parent="lane_ext">
-          <mxGeometry x="1040" y="50" width="180" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="ext_slack" value="Slack" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A154B;fontSize=11;strokeWidth=2" vertex="1" parent="lane_ext">
-          <mxGeometry x="1240" y="50" width="120" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="ext_teams" value="Microsoft Teams" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#464EB8;fontSize=11;strokeWidth=2" vertex="1" parent="lane_ext">
-          <mxGeometry x="1380" y="50" width="180" height="60" as="geometry" />
+        <mxCell id="ad_gitlab" value="GitLab&#10;gitlab.js · depth 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FC6D26;strokeColor=#C44A19;fontColor=#FFFFFF;fontSize=12;fontStyle=1" vertex="1" parent="lane_adapters">
+          <mxGeometry x="1320" y="34" width="290" height="60" as="geometry" />
         </mxCell>
 
-        <!-- ===== LAYER 7: FILE SYSTEM ===== -->
-        <mxCell id="lane_fs" value="Local filesystem  (project working tree)" style="swimlane;fontStyle=1;horizontal=1;startSize=24;fillColor=#F0F0F0;strokeColor=#444444;rounded=1;swimlaneFillColor=#FFFFFF" vertex="1" parent="1">
-          <mxGeometry x="40" y="1040" width="1620" height="220" as="geometry" />
+        <!-- ===== LAYER 6: EXTERNAL SYSTEMS (aligned 1:1 below adapters) ===== -->
+        <mxCell id="lane_ext" value="External PM systems" style="swimlane;fontStyle=1;horizontal=1;startSize=26;fillColor=#F5F5F5;strokeColor=#888888;rounded=1;swimlaneFillColor=#FFFFFF;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="40" y="850" width="1620" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="fs_openspec" value="openspec/&#10;├── changes/&lt;feature&gt;/&#10;│   ├── proposal.md   (frontmatter: status, external)&#10;│   ├── design.md&#10;│   ├── tasks.md     (frontmatter: items[] with sync_state, external_id)&#10;│   ├── specs/*.md   (Given/When/Then BDD scenarios)&#10;│   └── updates/&lt;task&gt;/progress.md&#10;└── archive/&lt;YYYY-MM-DD&gt;-&lt;feature&gt;/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#444444;fontSize=11;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=12;spacingTop=8" vertex="1" parent="lane_fs">
-          <mxGeometry x="40" y="50" width="780" height="156" as="geometry" />
+        <mxCell id="ext_github" value="GitHub Issues / Projects" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#222222;fontSize=12;strokeWidth=3" vertex="1" parent="lane_ext">
+          <mxGeometry x="40" y="34" width="290" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="fs_config" value=".openspecpm/&#10;├── config.json   (adapter + repo/org/project)&#10;├── state.json    (gitignored — runtime state)&#10;└── audit.log     (gitignored — JSONL, secrets scrubbed)&#10;&#10;.gitignore excludes:&#10;  state.json, config.local.json, audit.log" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#444444;fontSize=11;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=12;spacingTop=8" vertex="1" parent="lane_fs">
-          <mxGeometry x="840" y="50" width="720" height="156" as="geometry" />
+        <mxCell id="ext_azure" value="Azure DevOps Boards" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D7;fontSize=12;strokeWidth=3" vertex="1" parent="lane_ext">
+          <mxGeometry x="360" y="34" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_jira" value="Jira Cloud / Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0052CC;fontSize=12;strokeWidth=3" vertex="1" parent="lane_ext">
+          <mxGeometry x="680" y="34" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_linear" value="Linear" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5E6AD2;fontSize=12;strokeWidth=3" vertex="1" parent="lane_ext">
+          <mxGeometry x="1000" y="34" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_gitlab" value="GitLab Issues" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#FC6D26;fontSize=12;strokeWidth=3" vertex="1" parent="lane_ext">
+          <mxGeometry x="1320" y="34" width="290" height="60" as="geometry" />
         </mxCell>
 
-        <!-- ===== ARROWS (top→down flow) ===== -->
-        <!-- Users → Entry surfaces -->
-        <mxCell id="e_pm_skill" style="endArrow=classic;html=1;rounded=0;strokeColor=#6C8EBF" edge="1" parent="1" source="user_pm" target="entry_skill"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_dev_cli" style="endArrow=classic;html=1;rounded=0;strokeColor=#82B366" edge="1" parent="1" source="user_dev" target="entry_cli"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_agent_skill" style="endArrow=classic;html=1;rounded=0;strokeColor=#D97757;strokeWidth=2" edge="1" parent="1" source="user_agent" target="entry_skill"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_agent_cli" style="endArrow=classic;html=1;rounded=0;strokeColor=#D97757;dashed=1" edge="1" parent="1" source="user_agent" target="entry_cli"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- ===== BOTTOM: FILESYSTEM + NOTIFY SINKS (side by side) ===== -->
+        <mxCell id="fs_openspec" value="📁  openspec/  (project working tree)&#10;&#10;changes/&lt;feature&gt;/&#10;  ├── proposal.md          frontmatter: status, external&#10;  ├── design.md&#10;  ├── tasks.md             frontmatter: items[] w/ sync_state, external_id&#10;  ├── specs/*.md           Given/When/Then BDD scenarios&#10;  └── updates/&lt;task&gt;/progress.md&#10;archive/&lt;YYYY-MM-DD&gt;-&lt;feature&gt;/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#444444;fontSize=11;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=14;spacingTop=10;strokeWidth=2" vertex="1" parent="1">
+          <mxGeometry x="40" y="990" width="780" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="fs_cfg" value="📁  .openspecpm/  (gitignored except config.json)&#10;&#10;config.json              adapter + repo/org/project&#10;state.json               runtime cache         (.gitignore'd)&#10;config.local.json        local overrides       (.gitignore'd)&#10;audit.log                JSONL, secrets scrubbed  (.gitignore'd)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#444444;fontSize=11;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=14;spacingTop=10;strokeWidth=2" vertex="1" parent="1">
+          <mxGeometry x="840" y="990" width="500" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="sink_notify" value="🔔  Notification sinks&#10;(via standup --broadcast)&#10;&#10;Slack incoming webhook&#10;Teams MessageCard&#10;Generic JSON webhook" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A154B;fontSize=11;align=left;verticalAlign=top;spacingLeft=14;spacingTop=10;strokeWidth=2" vertex="1" parent="1">
+          <mxGeometry x="1360" y="990" width="300" height="200" as="geometry" />
+        </mxCell>
 
-        <!-- Entry → Commands (skill references the CLI; CLI is the runtime) -->
-        <mxCell id="e_skill_cli" value="invokes" style="endArrow=classic;html=1;rounded=0;strokeColor=#D6B656;fontSize=10" edge="1" parent="1" source="entry_skill" target="entry_cli"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_cli_setup" style="endArrow=classic;html=1;rounded=0;strokeColor=#82B366" edge="1" parent="1" source="entry_cli" target="cmd_setup"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_cli_plan" style="endArrow=classic;html=1;rounded=0;strokeColor=#82B366" edge="1" parent="1" source="entry_cli" target="cmd_plan"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_cli_sync" style="endArrow=classic;html=1;rounded=0;strokeColor=#82B366" edge="1" parent="1" source="entry_cli" target="cmd_sync"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_cli_track" style="endArrow=classic;html=1;rounded=0;strokeColor=#82B366" edge="1" parent="1" source="entry_cli" target="cmd_track"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_cli_exec" style="endArrow=classic;html=1;rounded=0;strokeColor=#82B366" edge="1" parent="1" source="entry_cli" target="cmd_exec"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- ===== OpenSpec CLI side note ===== -->
+        <mxCell id="ext_openspec" value="@fission-ai/openspec   (shelled out)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2F1;strokeColor=#00897B;fontSize=11;strokeWidth=2;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="320" height="40" as="geometry" />
+        </mxCell>
 
-        <!-- Commands → Core services -->
-        <mxCell id="e_plan_bridge" value="propose/decompose" style="endArrow=classic;html=1;rounded=0;strokeColor=#D79B00;fontSize=10" edge="1" parent="1" source="cmd_plan" target="core_bridge"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_plan_bdd" value="lint" style="endArrow=classic;html=1;rounded=0;strokeColor=#D79B00;fontSize=10" edge="1" parent="1" source="cmd_plan" target="core_bdd"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_sync_bdd" value="hard lint" style="endArrow=classic;html=1;rounded=0;strokeColor=#D79B00;fontSize=10" edge="1" parent="1" source="cmd_sync" target="core_bdd"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_sync_http" value="REST" style="endArrow=classic;html=1;rounded=0;strokeColor=#D79B00;fontSize=10" edge="1" parent="1" source="cmd_sync" target="core_http"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_track_tracking" value="reads" style="endArrow=classic;html=1;rounded=0;strokeColor=#D79B00;fontSize=10" edge="1" parent="1" source="cmd_track" target="core_track"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_track_audit" value="appends" style="endArrow=classic;html=1;rounded=0;strokeColor=#D79B00;fontSize=10" edge="1" parent="1" source="cmd_track" target="core_audit"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_track_notify" value="broadcast" style="endArrow=classic;html=1;rounded=0;strokeColor=#D79B00;fontSize=10;dashed=1" edge="1" parent="1" source="cmd_track" target="core_notify"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_exec_tracking" style="endArrow=classic;html=1;rounded=0;strokeColor=#D79B00" edge="1" parent="1" source="cmd_exec" target="core_track"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_setup_config" style="endArrow=classic;html=1;rounded=0;strokeColor=#D79B00" edge="1" parent="1" source="cmd_setup" target="core_config"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- ===================================================== -->
+        <!-- ARROWS — STRICT VERTICAL, MINIMAL LABELS              -->
+        <!-- ===================================================== -->
+
+        <!-- Users → Entry (only the strong ones) -->
+        <mxCell id="e1" style="endArrow=classic;html=1;strokeColor=#6C8EBF;strokeWidth=2" edge="1" parent="1" source="user_pm" target="entry_skill"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="endArrow=classic;html=1;strokeColor=#558B2F;strokeWidth=2" edge="1" parent="1" source="user_dev" target="entry_cli"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="endArrow=classic;html=1;strokeColor=#D97757;strokeWidth=2" edge="1" parent="1" source="user_agent" target="entry_skill"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Skill → CLI (skill invokes CLI under the hood) -->
+        <mxCell id="e4" value="invokes" style="endArrow=classic;html=1;strokeColor=#D97757;strokeWidth=2;fontSize=10;fontStyle=2" edge="1" parent="1" source="entry_skill" target="entry_cli"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Entry → Commands (1 fat arrow to the lane) -->
+        <mxCell id="e5" style="endArrow=classic;html=1;strokeColor=#82B366;strokeWidth=3" edge="1" parent="1" source="entry_cli" target="lane_cmds"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Commands → Core (one fat arrow between the two lanes) -->
+        <mxCell id="e6" style="endArrow=classic;html=1;strokeColor=#D79B00;strokeWidth=3" edge="1" parent="1" source="lane_cmds" target="lane_core"><mxGeometry relative="1" as="geometry"/></mxCell>
 
         <!-- Core → Adapters -->
-        <mxCell id="e_bridge_openspec" value="openspec CLI" style="endArrow=classic;html=1;rounded=0;strokeColor=#00897B;fontSize=10;strokeWidth=2" edge="1" parent="1" source="core_bridge" target="ext_openspec"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_http_base" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673A6" edge="1" parent="1" source="core_http" target="ad_base"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" style="endArrow=classic;html=1;strokeColor=#9673A6;strokeWidth=3" edge="1" parent="1" source="lane_core" target="lane_adapters"><mxGeometry relative="1" as="geometry"/></mxCell>
 
-        <!-- Base → individual adapters (implementation arrows) -->
-        <mxCell id="e_base_github" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673A6;dashed=1" edge="1" parent="1" source="ad_base" target="ad_github"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_base_azure" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673A6;dashed=1" edge="1" parent="1" source="ad_base" target="ad_azure"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_base_jira" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673A6;dashed=1" edge="1" parent="1" source="ad_base" target="ad_jira"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_base_linear" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673A6;dashed=1" edge="1" parent="1" source="ad_base" target="ad_linear"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_base_gitlab" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673A6;dashed=1" edge="1" parent="1" source="ad_base" target="ad_gitlab"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- Each adapter → its external (5 clean vertical lines) -->
+        <mxCell id="e8" style="endArrow=classic;html=1;strokeColor=#222222;strokeWidth=3" edge="1" parent="1" source="ad_github" target="ext_github"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" style="endArrow=classic;html=1;strokeColor=#0078D7;strokeWidth=3" edge="1" parent="1" source="ad_azure" target="ext_azure"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" style="endArrow=classic;html=1;strokeColor=#0052CC;strokeWidth=3" edge="1" parent="1" source="ad_jira" target="ext_jira"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" style="endArrow=classic;html=1;strokeColor=#5E6AD2;strokeWidth=3" edge="1" parent="1" source="ad_linear" target="ext_linear"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" style="endArrow=classic;html=1;strokeColor=#FC6D26;strokeWidth=3" edge="1" parent="1" source="ad_gitlab" target="ext_gitlab"><mxGeometry relative="1" as="geometry"/></mxCell>
 
-        <!-- Adapters → External systems -->
-        <mxCell id="e_ad_github_ext" style="endArrow=classic;html=1;rounded=0;strokeColor=#222222;strokeWidth=2" edge="1" parent="1" source="ad_github" target="ext_github"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_ad_azure_ext" style="endArrow=classic;html=1;rounded=0;strokeColor=#0078D7;strokeWidth=2" edge="1" parent="1" source="ad_azure" target="ext_azure"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_ad_jira_ext" style="endArrow=classic;html=1;rounded=0;strokeColor=#0052CC;strokeWidth=2" edge="1" parent="1" source="ad_jira" target="ext_jira"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_ad_linear_ext" style="endArrow=classic;html=1;rounded=0;strokeColor=#5E6AD2;strokeWidth=2" edge="1" parent="1" source="ad_linear" target="ext_linear"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_ad_gitlab_ext" style="endArrow=classic;html=1;rounded=0;strokeColor=#FC6D26;strokeWidth=2" edge="1" parent="1" source="ad_gitlab" target="ext_gitlab"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- Core → OpenSpec CLI (side note, dashed) -->
+        <mxCell id="e13" style="endArrow=classic;html=1;strokeColor=#00897B;strokeWidth=2;dashed=1" edge="1" parent="1" source="core_spec" target="ext_openspec"><mxGeometry relative="1" as="geometry"/></mxCell>
 
-        <!-- Notify → Slack/Teams -->
-        <mxCell id="e_notify_slack" style="endArrow=classic;html=1;rounded=0;strokeColor=#4A154B;dashed=1" edge="1" parent="1" source="core_notify" target="ext_slack"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_notify_teams" style="endArrow=classic;html=1;rounded=0;strokeColor=#464EB8;dashed=1" edge="1" parent="1" source="core_notify" target="ext_teams"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- Core → Filesystem (1 grouped arrow) -->
+        <mxCell id="e14" value="reads / writes" style="endArrow=classic;html=1;strokeColor=#444444;strokeWidth=2;fontSize=10;fontStyle=2;dashed=1" edge="1" parent="1" source="core_track" target="fs_openspec"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e15" style="endArrow=classic;html=1;strokeColor=#444444;strokeWidth=2;dashed=1" edge="1" parent="1" source="core_io" target="fs_cfg"><mxGeometry relative="1" as="geometry"/></mxCell>
 
-        <!-- Core → filesystem -->
-        <mxCell id="e_bridge_fs" value="proposal.md, specs/" style="endArrow=classic;html=1;rounded=0;strokeColor=#00897B;fontSize=10;strokeWidth=2" edge="1" parent="1" source="core_bridge" target="fs_openspec"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_track_fs" style="endArrow=classic;html=1;rounded=0;strokeColor=#666666" edge="1" parent="1" source="core_track" target="fs_openspec"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_config_fs" style="endArrow=classic;html=1;rounded=0;strokeColor=#666666" edge="1" parent="1" source="core_config" target="fs_config"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="e_audit_fs" style="endArrow=classic;html=1;rounded=0;strokeColor=#666666" edge="1" parent="1" source="core_audit" target="fs_config"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- Notify → Slack/Teams sink (dashed, sidebar) -->
+        <mxCell id="e16" style="endArrow=classic;html=1;strokeColor=#4A154B;strokeWidth=2;dashed=1" edge="1" parent="1" source="core_io" target="sink_notify"><mxGeometry relative="1" as="geometry"/></mxCell>
 
         <!-- LEGEND -->
-        <mxCell id="legend" value="Legend&#10;━━━ solid = command/data flow&#10;┄┄┄ dashed = optional or interface implementation&#10;Color = brand of the external system&#10;Brand boxes — replace with logos in draw.io UI: search the shape library for &quot;GitHub&quot;, &quot;Jira&quot;, &quot;Slack&quot;, etc." style="text;html=1;strokeColor=#999999;fillColor=#FAFAFA;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontSize=10;spacingLeft=12;spacingTop=8" vertex="1" parent="1">
-          <mxGeometry x="40" y="1270" width="1620" height="20" as="geometry" />
+        <mxCell id="legend" value="Legend:&#10;━━━ solid arrows = primary control / data flow&#10;┄┄┄ dashed arrows = filesystem I/O, optional side-channel (OpenSpec CLI, webhooks)&#10;Colors match the brand of each external system; each adapter sits directly above the system it talks to." style="text;html=1;strokeColor=#999999;fillColor=#FAFAFA;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontSize=10;spacingLeft=12;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="40" y="1200" width="1620" height="80" as="geometry" />
         </mxCell>
 
       </root>
