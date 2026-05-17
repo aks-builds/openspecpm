@@ -21,8 +21,9 @@ jobs:
         run: |
           set -o pipefail
           npm test 2>&1 | tee test-output.txt
-          count=$(grep -oE '^ℹ tests [0-9]+' test-output.txt | tail -1 | grep -oE '[0-9]+' || echo 0)
-          fail=$(grep -oE '^ℹ fail [0-9]+'  test-output.txt | tail -1 | grep -oE '[0-9]+' || echo 0)
+          # node --test uses 'spec' reporter on TTY (prefix ℹ) and 'tap' on CI (prefix #).
+          count=$(grep -oE '^[ℹ#] tests [0-9]+' test-output.txt | tail -1 | grep -oE '[0-9]+' || echo 0)
+          fail=$(grep -oE '^[ℹ#] fail [0-9]+'  test-output.txt | tail -1 | grep -oE '[0-9]+' || echo 0)
           echo "count=$count" >> "$GITHUB_OUTPUT"
           echo "fail=$fail"   >> "$GITHUB_OUTPUT"
           echo "Tests: $count passing, $fail failing"
