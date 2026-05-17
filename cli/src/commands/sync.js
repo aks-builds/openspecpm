@@ -4,6 +4,7 @@ import { existsSync } from 'node:fs';
 import { readConfig } from '../config.js';
 import { loadAdapter } from '../adapters/index.js';
 import { changeDir, changeExists } from '../openspec-bridge.js';
+import { lintChange, summarize, formatFindings } from '../bdd/linter.js';
 import * as fm from '../frontmatter.js';
 
 export async function runSync({ feature, dryRun = false, force = false } = {}) {
@@ -20,10 +21,24 @@ export async function runSync({ feature, dryRun = false, force = false } = {}) {
     throw err;
   }
 
+  const dir = changeDir(feature);
+  const findings = await lintChange(dir);
+  const sum = summarize(findings);
+  if (sum.errors > 0 && !force) {
+    process.stderr.write(`BDD lint: ${sum.errors} errors, ${sum.warnings} warnings\n`);
+    process.stderr.write(formatFindings(findings));
+    const err = new Error(`Sync blocked by ${sum.errors} BDD lint errors.`);
+    err.remediation = 'Refine the scenarios, or pass --force to override.';
+    throw err;
+  }
+  if (sum.total > 0) {
+    process.stdout.write(`BDD lint: ${sum.errors} errors, ${sum.warnings} warnings (${force && sum.errors ? 'overridden by --force' : 'soft'})\n`);
+    process.stdout.write(formatFindings(findings));
+  }
+
   const adapter = loadAdapter(config.adapter, config);
   if (!dryRun) await adapter.init();
 
-  const dir = changeDir(feature);
   const proposalPath = join(dir, 'proposal.md');
   const proposalRaw = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
   const { data: pdata } = fm.parse(proposalRaw);
@@ -86,8 +101,6 @@ export async function runSync({ feature, dryRun = false, force = false } = {}) {
     const patched = fm.serialize({ ...tdata, items: updatedItems }, tbody);
     await writeFile(tasksPath, patched, 'utf8');
   }
-
-  if (force) out('--force was set, but BDD lint is not enforced until Sprint 3.');
 }
 
 function out(s) {

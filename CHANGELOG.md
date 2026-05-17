@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Sprint 3
+
+- BDD linter (`cli/src/bdd/linter.js`): parses `Scenario:` blocks, runs heuristic checks (one Given/When/Then, observable verbs in Then, deny-list for vague phrases, tautology detection via word-bigram similarity). Soft mode at `propose`, hard mode at `sync` with `--force` override.
+- Tracking commands: `status` (per-change task counts), `standup` (recent `progress.md` updates with `--since 12h/2d/1w`), `next` (open tasks with satisfied deps), `blocked` (tasks waiting on unmet deps with reasons).
+- `ship <feature>`: closes every synced work item via the adapter, closes the epic, then shells out to `openspec archive`. Two-step confirmation (or `-y`).
+- `cli/src/tracking.js` helper: `listChanges`, `loadChange`, `findNextTasks`, `findBlockedTasks`, `findRecentUpdates`, `unmetDeps`, `summarizeChange`.
+- `references/track.md` skill doc.
+- Final SKILL.md description with all Sprint 3 trigger phrases and sharpened non-triggers vs CCPM.
+- 12 new tests (BDD linter + tracking), 49 total.
+
 ### Sprint 2
 
 - Azure DevOps Boards adapter (REST + PAT auth). All 9 adapter methods implemented: WIQL list, JSON-Patch create/update, Parent/Child hierarchy links, state-based close, comments.

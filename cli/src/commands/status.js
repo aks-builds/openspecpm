@@ -1,22 +1,29 @@
 import { readConfig } from '../config.js';
-import { readdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { OPENSPEC_CHANGES_DIR } from '../openspec-bridge.js';
+import { listChanges, summarizeChange } from '../tracking.js';
 
 export async function runStatus() {
   const config = await readConfig();
-  process.stdout.write('openspecpm status\n\n');
-  process.stdout.write(`Adapter: ${config?.adapter ?? '(not configured — run `openspecpm init`)'}\n`);
+  out('openspecpm status\n');
+  out(`Adapter: ${config?.adapter ?? '(not configured — run `openspecpm init`)'}`);
+  if (config?.repo) out(`Repo:    ${config.repo}`);
+  if (config?.organization) out(`Org:     ${config.organization} / ${config.project}`);
+  if (config?.baseUrl && config?.projectKey) out(`Jira:    ${config.baseUrl} / ${config.projectKey}`);
 
-  const dir = join(process.cwd(), OPENSPEC_CHANGES_DIR);
-  if (!existsSync(dir)) {
-    process.stdout.write('No OpenSpec changes yet.\n');
+  const changes = await listChanges();
+  out(`\nChanges: ${changes.length}`);
+  if (!changes.length) {
+    out('  (no OpenSpec changes yet — run `openspecpm propose <feature>`)');
     return;
   }
-  const entries = await readdir(dir, { withFileTypes: true });
-  const changes = entries.filter((e) => e.isDirectory()).map((e) => e.name);
-  process.stdout.write(`Changes: ${changes.length}\n`);
-  for (const name of changes) process.stdout.write(`  - ${name}\n`);
-  process.stdout.write('\nFull standup/blocked/next reports land in Sprint 3.\n');
+  for (const c of changes) {
+    const { total, counts } = summarizeChange(c);
+    const flags = [];
+    if (c.proposal.status) flags.push(c.proposal.status);
+    if (c.proposal.external) flags.push('synced');
+    out(`  - ${c.name} (${total} tasks: ${counts.created} synced, ${counts.pending} pending, ${counts.failed} failed, ${counts.done} done)` + (flags.length ? ` [${flags.join(', ')}]` : ''));
+  }
+}
+
+function out(s) {
+  process.stdout.write(s + '\n');
 }

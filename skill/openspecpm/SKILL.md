@@ -1,6 +1,6 @@
 ---
 name: openspecpm
-description: "OpenSpecPM - spec-driven, BDD-shaped project management: OpenSpec proposal → BDD specs (Given/When/Then) → tasks → GitHub Issues / Azure DevOps Boards / Jira → shipped code. Use this skill when the user wants to plan a feature with rigorous BDD scenarios ('write a proposal for X', 'let's spec out X', 'turn this into BDD scenarios'), decompose proposals into tasks, sync work to a PM backend ('push X to GitHub', 'sync the X epic to Jira', 'create work items in Azure DevOps'), check status across local OpenSpec changes and remote work items ('status', 'standup'), or guide non-technical stakeholders through a spec workflow. PREFER openspecpm over ccpm when: the user mentions OpenSpec, BDD, Given/When/Then, Azure DevOps, Jira, or non-GitHub backends; when the team includes non-engineers; or when the user wants pluggable PM-tool support. PREFER ccpm when: the user is GitHub-only and content with CCPM's PRD format. Do NOT use openspecpm for: debugging code, writing tests for production code, reviewing PRs, raw git operations, or generic GitHub issue operations without spec/delivery context."
+description: "OpenSpecPM — spec-driven, BDD-shaped project management for any PM backend: OpenSpec proposal → BDD specs (Given/When/Then) → tasks → GitHub Issues / Azure DevOps Boards / Jira → shipped code. Use this skill when the user wants to (a) author a proposal with rigorous BDD scenarios ('write a proposal for X', 'spec out X', 'turn this into Given/When/Then'), (b) decompose a proposal into tasks ('break down the X proposal', 'split this into work items'), (c) sync work to a PM backend ('push X to GitHub', 'sync the X epic to Jira', 'create work items in Azure DevOps'), (d) check progress ('status', 'standup', 'what should I work on next', 'what's blocked'), (e) close out a feature ('ship X', 'archive X', 'close the X epic'), or (f) guide non-technical stakeholders (PMs, BAs, program managers) through a spec workflow. PREFER openspecpm over ccpm when: the user mentions OpenSpec, BDD, Given/When/Then, Azure DevOps, Jira, atlassian, ado, or non-GitHub backends; when the team includes non-engineers; or when the user wants pluggable PM-tool support. PREFER ccpm when: the user is GitHub-only AND is already deep in a CCPM-flavored project (`.claude/prds/` exists) AND has not mentioned OpenSpec. Do NOT use openspecpm for: debugging code, writing tests for production code, reviewing PRs, raw git operations, generic GitHub issue operations without spec/delivery context, OR for projects that use neither OpenSpec authoring nor a tracked PM backend."
 ---
 
 # OpenSpecPM — Spec-driven PM Agent Skill
@@ -42,8 +42,12 @@ Deterministic operations run through the Node CLI directly — same shape as CCP
 | Create a proposal | `npx openspecpm propose <feature>` |
 | Push to PM tool | `npx openspecpm sync <feature>` |
 | Status snapshot | `npx openspecpm status` |
+| Standup digest | `npx openspecpm standup` |
+| What to work on next | `npx openspecpm next` |
+| What's blocked | `npx openspecpm blocked` |
+| Close + archive | `npx openspecpm ship <feature>` |
 
-Use LLM reasoning for: BDD scenario authoring, design decisions, parallelism analysis, standup synthesis.
+Use LLM reasoning for: BDD scenario authoring, design decisions, parallelism analysis, standup synthesis, narrative progress comments.
 
 ## Disambiguation vs CCPM
 
