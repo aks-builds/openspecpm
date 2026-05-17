@@ -55,21 +55,19 @@ npm install -g @fission-ai/openspec
 
 ## In action
 
-> A few screenshots of OpenSpecPM doing work. Source images live in [`docs/screenshots/`](docs/screenshots/) — see that folder's README for naming and size conventions.
+> A few screenshots of OpenSpecPM doing work. Source images live in [`docs/screenshots/`](docs/screenshots/); regenerate with `pwsh docs/screenshots/render.ps1` after CLI output changes.
 
-<!--
-Drop a PNG into docs/screenshots/ then uncomment the matching line below.
-Each block has a one-line caption followed by the image reference.
--->
+**Phase-grouped command reference** — `help-table` shows every command grouped by workflow phase (Setup, Plan, Sync, Track, Execute/Ship):
 
-<!-- **Interactive setup** — pick a PM tool, wire credentials, write `.openspecpm/config.json`. -->
-<!-- ![openspecpm init wizard](docs/screenshots/init.png) -->
+![openspecpm help-table](docs/screenshots/help-table.png)
 
-<!-- **Authoring a proposal** — OpenSpec generates `proposal.md`, BDD specs, and `tasks.md`; soft-lint runs after. -->
-<!-- ![openspecpm propose](docs/screenshots/propose.png) -->
+**Health check** — `doctor` diagnoses auth + tooling for each adapter with English remediation hints on every failure:
 
-<!-- **Tracking work** — `status`, `next`, `blocked`, `standup` give a live view of where every task is. -->
-<!-- ![openspecpm status](docs/screenshots/status.png) -->
+![openspecpm doctor github](docs/screenshots/doctor.png)
+
+**Local snapshot** — `status` shows the configured adapter and per-change task counts at a glance:
+
+![openspecpm status](docs/screenshots/status.png)
 
 ## Quick start
 
