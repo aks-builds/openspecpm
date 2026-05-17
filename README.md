@@ -2,15 +2,32 @@
 
 [![test](https://github.com/aks-builds/openspecpm/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/aks-builds/openspecpm/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Faks-builds%2Fopenspecpm%2Fmain%2F.github%2Fbadges%2Ftests.json)](cli/tests)
+[![tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Faks-builds%2F03ce34dc5c6486c004dd8cf4c27ea87c%2Fraw%2Ftests.json)](cli/tests)
 
 > Spec-driven, BDD-shaped project management for AI agents — author once in [OpenSpec](https://github.com/Fission-AI/OpenSpec), sync to GitHub Issues, Azure DevOps Boards, or Jira.
 
 OpenSpecPM turns natural-language intent ("plan X", "sync the X epic", "what's blocked", "ship X") into a disciplined flow:
 
-```
-idea → proposal.md (OpenSpec) → BDD specs (Given/When/Then) → tasks
-     → tracked work items (GitHub | ADO | Jira) → shipped code
+```mermaid
+flowchart LR
+    Idea["💡 **Idea**"]
+    Proposal["📝 **proposal.md**<br/>(OpenSpec)"]
+    BDD["📋 **BDD specs**<br/>Given / When / Then"]
+    Tasks["✅ **tasks**"]
+    Tracked["🎯 **Tracked work items**<br/>GitHub · ADO · Jira"]
+    Shipped["🚀 **Shipped code**"]
+
+    Idea --> Proposal --> BDD --> Tasks --> Tracked --> Shipped
+
+    classDef ideaC fill:#FFF9C4,stroke:#F9A825,color:#000
+    classDef artifactC fill:#D5E8D4,stroke:#82B366,color:#000
+    classDef extC fill:#DAE8FC,stroke:#6C8EBF,color:#000
+    classDef doneC fill:#C8E6C9,stroke:#2E7D32,color:#000
+
+    class Idea ideaC
+    class Proposal,BDD,Tasks artifactC
+    class Tracked extC
+    class Shipped doneC
 ```
 
 It is a sibling of [CCPM](https://github.com/automazeio/ccpm), with three differences:
