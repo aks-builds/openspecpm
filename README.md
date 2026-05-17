@@ -87,6 +87,170 @@ npx openspecpm ship dark-mode
 
 Every command appends a JSONL entry (secrets scrubbed) to `.openspecpm/audit.log`.
 
+## Architecture
+
+```mermaid
+flowchart TD
+    PM([👤 Project Manager / BA])
+    Dev([👤 Developer])
+    Agent([🤖 AI Agent · Claude Code])
+
+    Skill["**Agent Skill**<br/>skill/openspecpm/SKILL.md<br/><br/>Routes natural-language intent"]
+    CLI["**Node CLI**<br/>cli/bin/openspecpm.js<br/><br/>Commander dispatch + audit"]
+
+    subgraph CMDS["📋 Commands · cli/src/commands/"]
+        direction LR
+        Setup["**① Setup**<br/>init • doctor"]
+        Plan["**② Plan**<br/>propose • decompose"]
+        SyncCmd["**③ Sync**<br/>sync • comment • reconcile<br/>assign • bug-report"]
+        Track["**④ Track**<br/>status • standup • next<br/>blocked • validate • search • watch"]
+        Exec["**⑤ Execute / Ship**<br/>fan-out • ship • help-table"]
+    end
+
+    subgraph CORE["⚙️ Core services · cli/src/"]
+        direction LR
+        Bridge["**OpenSpec Bridge + BDD**<br/>openspec-bridge.js<br/>bdd/linter.js"]
+        TrackingS["**Tracking + Audit**<br/>tracking.js<br/>audit.js"]
+        HTTP["**HTTP + Rate-limit**<br/>http.js<br/>ratelimit.js"]
+        IO["**Config + Notify + Telemetry**<br/>config.js • notify.js<br/>telemetry.js"]
+    end
+
+    subgraph ADAPTERS["🔌 Adapter contract · cli/src/adapters/ · 9 methods + capabilities()"]
+        direction LR
+        GHA["**GitHub**<br/>depth 2"]
+        AzA["**Azure DevOps**<br/>depth 4"]
+        JiA["**Jira**<br/>depth 3"]
+        LiA["**Linear**<br/>depth 2"]
+        GlA["**GitLab**<br/>depth 2"]
+    end
+
+    subgraph EXT["☁️ External PM systems"]
+        direction LR
+        GHE[("GitHub<br/>Issues / Projects")]
+        AzE[("Azure DevOps<br/>Boards")]
+        JiE[("Jira<br/>Cloud / Server")]
+        LiE[("Linear")]
+        GlE[("GitLab<br/>Issues")]
+    end
+
+    subgraph PERSIST["💾 Persistence & sinks"]
+        direction LR
+        FS1["📁 **openspec/**<br/>changes/&lt;feature&gt;/<br/>• proposal.md<br/>• specs/*.md (BDD)<br/>• tasks.md<br/>• updates/progress.md"]
+        FS2["📁 **.openspecpm/**<br/>• config.json<br/>• audit.log (JSONL)<br/>• state.json"]
+        Sinks["🔔 **Webhooks**<br/>• Slack<br/>• Teams<br/>• Generic JSON"]
+    end
+
+    PM --> Skill
+    Dev --> CLI
+    Agent --> Skill
+    Skill -- invokes --> CLI
+    CLI --> CMDS
+    CMDS --> CORE
+    CORE --> ADAPTERS
+
+    GHA --> GHE
+    AzA --> AzE
+    JiA --> JiE
+    LiA --> LiE
+    GlA --> GlE
+
+    Bridge -. writes .-> FS1
+    TrackingS -. writes .-> FS1
+    IO -. writes .-> FS2
+    IO -. broadcast .-> Sinks
+
+    classDef user fill:#DAE8FC,stroke:#6C8EBF,color:#000
+    classDef agent fill:#FFE0B2,stroke:#D97757,color:#000
+    classDef entry fill:#C5E1A5,stroke:#558B2F,color:#000
+    classDef skill fill:#FFE0B2,stroke:#D97757,color:#000
+    classDef github fill:#222,stroke:#000,color:#fff
+    classDef azure fill:#0078D7,stroke:#005A9E,color:#fff
+    classDef jira fill:#0052CC,stroke:#003580,color:#fff
+    classDef linear fill:#5E6AD2,stroke:#3F47A0,color:#fff
+    classDef gitlab fill:#FC6D26,stroke:#C44A19,color:#fff
+    classDef ext fill:#fff,stroke:#333,stroke-width:3px,color:#000
+    classDef fs fill:#fff,stroke:#444,stroke-width:2px,color:#000
+
+    class PM,Dev user
+    class Agent agent
+    class CLI entry
+    class Skill skill
+    class GHA github
+    class AzA azure
+    class JiA jira
+    class LiA linear
+    class GlA gitlab
+    class GHE,AzE,JiE,LiE,GlE ext
+    class FS1,FS2,Sinks fs
+```
+
+## Lifecycle
+
+```mermaid
+flowchart LR
+    Idea["💡 **Idea**<br/>stakeholder feature,<br/>bug, or refactor"]
+
+    subgraph P1["① PLAN"]
+        direction TB
+        Propose["**openspecpm propose**<br/>Shells out to OpenSpec<br/>Soft BDD lint"]
+        Decompose["**openspecpm decompose**<br/>Extract tasks from<br/>proposal + BDD"]
+        Propose --> Decompose
+    end
+
+    subgraph P2["② REVIEW + SYNC"]
+        direction TB
+        Review["👀 **Human review**<br/>Sign off on BDD"]
+        Validate["**openspecpm validate**<br/>Schema + BDD sweep"]
+        SyncCmd["**openspecpm sync**<br/>Hard BDD lint<br/>Idempotent"]
+        Review --> Validate --> SyncCmd
+    end
+
+    subgraph P3["③ EXECUTE"]
+        direction TB
+        Next["**openspecpm next**"]
+        FanOut["**openspecpm fan-out**<br/>Parallel agent prompts"]
+        Build["🤖 **Implement**<br/>BDD = acceptance criteria"]
+        Comment["**openspecpm comment**<br/>Broadcast progress"]
+        Reconcile["**openspecpm reconcile**<br/>Pull remote state"]
+        Next --> FanOut --> Build --> Comment --> Reconcile
+    end
+
+    subgraph P4["④ TRACK"]
+        direction TB
+        Status["**Track commands**<br/>status • standup<br/>blocked • search<br/>watch • bug-report"]
+    end
+
+    subgraph P5["⑤ SHIP"]
+        direction TB
+        Ship["**openspecpm ship**<br/>Close tasks + epic<br/>Archive change"]
+        Shipped["🚀 **Shipped**"]
+        Ship --> Shipped
+    end
+
+    Idea --> P1
+    P1 --> P2
+    P2 --> P3
+    P3 --> P4
+    P4 --> P5
+    Shipped -. next feature .-> Idea
+
+    classDef ideaC fill:#FFF9C4,stroke:#F9A825,color:#000
+    classDef cmdC fill:#D5E8D4,stroke:#82B366,color:#000
+    classDef humanC fill:#FFF9C4,stroke:#F9A825,color:#000
+    classDef agentC fill:#FFE0B2,stroke:#D97757,color:#000
+    classDef shipC fill:#FFCDD2,stroke:#D32F2F,color:#000
+    classDef doneC fill:#C8E6C9,stroke:#2E7D32,color:#000
+
+    class Idea ideaC
+    class Propose,Decompose,Validate,SyncCmd,Next,FanOut,Comment,Reconcile,Status cmdC
+    class Review humanC
+    class Build agentC
+    class Ship shipC
+    class Shipped doneC
+```
+
+> Cross-cutting on every command: audit log (`.openspecpm/audit.log`, secrets scrubbed) · token-bucket rate-limiting per adapter · OpenSpec version probe · optional opt-in telemetry.
+
 ## Workflow phases
 
 OpenSpecPM is organized into five phases, each with a reference doc under [`skill/openspecpm/references/`](skill/openspecpm/references/):
