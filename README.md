@@ -8,9 +8,26 @@
 
 OpenSpecPM turns natural-language intent ("plan X", "sync the X epic", "what's blocked", "ship X") into a disciplined flow:
 
-```
-idea → proposal.md (OpenSpec) → BDD specs (Given/When/Then) → tasks
-     → tracked work items (GitHub | ADO | Jira) → shipped code
+```mermaid
+flowchart LR
+    Idea["💡 **Idea**"]
+    Proposal["📝 **proposal.md**<br/>(OpenSpec)"]
+    BDD["📋 **BDD specs**<br/>Given / When / Then"]
+    Tasks["✅ **tasks**"]
+    Tracked["🎯 **Tracked work items**<br/>GitHub · ADO · Jira"]
+    Shipped["🚀 **Shipped code**"]
+
+    Idea --> Proposal --> BDD --> Tasks --> Tracked --> Shipped
+
+    classDef ideaC fill:#FFF9C4,stroke:#F9A825,color:#000
+    classDef artifactC fill:#D5E8D4,stroke:#82B366,color:#000
+    classDef extC fill:#DAE8FC,stroke:#6C8EBF,color:#000
+    classDef doneC fill:#C8E6C9,stroke:#2E7D32,color:#000
+
+    class Idea ideaC
+    class Proposal,BDD,Tasks artifactC
+    class Tracked extC
+    class Shipped doneC
 ```
 
 It is a sibling of [CCPM](https://github.com/automazeio/ccpm), with three differences:
