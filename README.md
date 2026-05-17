@@ -24,8 +24,9 @@ It is a sibling of [CCPM](https://github.com/automazeio/ccpm), with three differ
 Sprint 1 ✅ — GitHub adapter, OpenSpec bridge, init/propose/sync/doctor.
 Sprint 2 ✅ — Azure DevOps + Jira adapters (REST), structure/sync/execute skill references.
 Sprint 3 ✅ — BDD linter (soft at propose, hard at sync), status/standup/next/blocked/ship, track.md.
+Sprint 4 ✅ — comment/reconcile/decompose/validate/search/fan-out/bug-report/help-table, audit log.
 
-49 tests passing on Node 20. See [`CHANGELOG.md`](CHANGELOG.md) for the running log.
+58 tests passing on Node 20. See [`CHANGELOG.md`](CHANGELOG.md) for the running log.
 
 ## Install
 
@@ -78,12 +79,22 @@ npx openspecpm ship dark-mode
 | `init` | Interactive wizard. Picks the PM tool. Writes `.openspecpm/config.json`. |
 | `doctor [adapter]` | Auth/tooling health check. English remediation hints on every failure. |
 | `propose <feature>` | Shell out to OpenSpec; create `openspec/changes/<feature>/`. Soft-lint BDD scenarios. |
+| `decompose <feature>` | Extract tasks from proposal headings/checklists + BDD scenarios into `tasks.md`. |
 | `sync <feature>` | Hard-lint BDD, then create/update work items in the PM tool. Idempotent. |
+| `comment <feature> <task>` | Broadcast local `progress.md` (or `-m`) to the PM tool with `<!-- SYNCED -->` marker. |
+| `reconcile <feature>` | Pull remote work-item state into local frontmatter. Detects out-of-band closes. |
+| `bug-report <feature> <task> --title "…"` | File a linked regression against a shipped task. |
 | `status` | Per-change task counts: pending / created / failed / done. |
 | `standup [--since 24h]` | Recent `progress.md` updates, newest first. |
 | `next [-l 5]` | Tasks with no unmet dependencies. |
 | `blocked` | Tasks waiting on unmet dependencies (with reasons). |
+| `validate` | Schema + dependency + BDD-lint sweep across every change. |
+| `search <query>` | Grep across proposals, specs, tasks, progress notes. |
+| `fan-out <feature>` | Emit ready-to-paste agent prompts for `parallel: true` tasks. |
 | `ship <feature> [-y]` | Close all task work items + close the epic + archive the OpenSpec change. |
+| `help-table [topic]` | Context-aware command reference grouped by workflow phase. |
+
+Every command appends a JSONL entry (secrets scrubbed) to `.openspecpm/audit.log`.
 
 ## Workflow phases
 

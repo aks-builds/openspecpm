@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Sprint 4
+
+- `comment <feature> <task>`: post local `progress.md` (or `-m "..."`) to the PM tool with an auto-generated `<!-- SYNCED: <iso> -->` marker; appends to local progress for traceability.
+- `reconcile <feature>`: fetches every task with an `external_id` via `adapter.getWorkItem` and mirrors the remote `status`/`assignee` into local task frontmatter. Detects out-of-band closes so `next`/`blocked` reflect remote truth.
+- `decompose <feature>`: extracts tasks from proposal headings, GitHub-style checklists, "Tasks" sections, and BDD scenarios in `specs/`. Refuses to overwrite an existing `tasks.md` without `--force`.
+- `validate`: walks every change checking proposal frontmatter shape, task schema (`sync_state` enum, required fields, duplicate titles), `depends_on` reference resolution, and BDD lint summary. Exits non-zero on any error.
+- `search <query>`: case-insensitive regex grep across `openspec/changes/**/*.md`. `--case-sensitive` and `-l <limit>` flags.
+- `fan-out <feature>`: emits ready-to-paste agent prompts for `parallel: true` tasks with no unmet deps. Each prompt embeds the proposal summary, design notes, and the linked BDD spec as acceptance criteria.
+- `bug-report <feature> <task> --title "..."`: files a regression bug via `adapter.createWorkItem`, links it to the original via `linkWorkItems`, comments on the original. Works against all three adapters.
+- `help-table [topic]`: CCPM-style topical help. Groups commands by phase (Setup / Plan / Sync / Track / Execute-Ship).
+- Audit log (`cli/src/audit.js`): every command appends a JSONL entry to `.openspecpm/audit.log` with timestamp, args (secrets scrubbed), and result/error. Wrapped via `audited()` helper in `cli/bin/openspecpm.js`.
+- Tests: +9 covering audit (record + scrub + audited wrapper), validate inputs, decompose heuristics + idempotency, search. Total 58/58 green.
+
 ### Sprint 3
 
 - BDD linter (`cli/src/bdd/linter.js`): parses `Scenario:` blocks, runs heuristic checks (one Given/When/Then, observable verbs in Then, deny-list for vague phrases, tautology detection via word-bigram similarity). Soft mode at `propose`, hard mode at `sync` with `--force` override.
