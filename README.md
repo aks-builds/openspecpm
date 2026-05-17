@@ -20,8 +20,8 @@ It is a sibling of [CCPM](https://github.com/automazeio/ccpm), with three differ
 
 ## Status
 
-Sprint 1 (alpha): GitHub adapter, OpenSpec bridge, init/propose/sync/doctor commands.
-Sprint 2 (planned): Azure DevOps Boards + Jira adapters, rate-limiting, contract tests.
+Sprint 1 ✅: GitHub adapter, OpenSpec bridge, init/propose/sync/doctor commands.
+Sprint 2 ✅: Azure DevOps + Jira adapters (REST), contract tests, structure/sync/execute references.
 Sprint 3 (planned): BDD linter, status/standup/next/blocked/ship, README polish, `npm publish`.
 
 See [`CHANGELOG.md`](CHANGELOG.md) for the running log.

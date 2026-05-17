@@ -22,9 +22,9 @@ idea → openspecpm propose <feature>           (OpenSpec authors proposal.md, d
 | Phase | When to read | Reference |
 |---|---|---|
 | **Plan** | User wants to define a new feature with BDD scenarios. | `references/plan.md` |
-| **Structure** | A proposal exists and needs decomposition into tasks. | `references/structure.md` (Sprint 2) |
-| **Sync** | Local OpenSpec change needs to become PM-tool work items. | `references/sync.md` (Sprint 2) |
-| **Execute** | User wants to start work on a tracked item. | `references/execute.md` (Sprint 2) |
+| **Structure** | A proposal exists and needs decomposition into tasks. | `references/structure.md` |
+| **Sync** | Local OpenSpec change needs to become PM-tool work items. | `references/sync.md` |
+| **Execute** | User wants to start work on a tracked item. | `references/execute.md` |
 | **Track** | User asks status / standup / what's next / what's blocked. | `references/track.md` (Sprint 3) |
 
 ## Conventions

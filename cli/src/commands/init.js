@@ -25,9 +25,9 @@ export async function runInit({ nonInteractive = false } = {}) {
   const adapter = await p.select({
     message: 'Which PM tool does your team use?',
     options: [
-      { value: 'github', label: 'GitHub Issues / Projects', hint: 'Stable in v0.1' },
-      { value: 'azure', label: 'Azure DevOps Boards', hint: 'Alpha — full support in Sprint 2' },
-      { value: 'jira', label: 'Jira', hint: 'Alpha — full support in Sprint 2' },
+      { value: 'github', label: 'GitHub Issues / Projects', hint: 'Stable (gh CLI)' },
+      { value: 'azure', label: 'Azure DevOps Boards', hint: 'Beta — REST + PAT' },
+      { value: 'jira', label: 'Jira', hint: 'Beta — REST + API token' },
     ],
   });
   if (p.isCancel(adapter)) return cancelled();

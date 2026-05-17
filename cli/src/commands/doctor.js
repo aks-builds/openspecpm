@@ -1,5 +1,5 @@
 import { readConfig } from '../config.js';
-import { loadAdapter, listAdapters } from '../adapters/index.js';
+import { loadAdapter, listAdapters, resolveAdapter } from '../adapters/index.js';
 import { probe, OpenSpecError } from '../openspec-bridge.js';
 
 export async function runDoctor({ adapter } = {}) {
@@ -18,11 +18,13 @@ export async function runDoctor({ adapter } = {}) {
   }
 
   const config = await readConfig();
-  const adapters = adapter ? [adapter] : (config ? [config.adapter] : listAdapters());
+  const adapters = adapter
+    ? [resolveAdapter(adapter)]
+    : (config ? [resolveAdapter(config.adapter)] : listAdapters());
 
   for (const name of adapters) {
     process.stdout.write(`\n[${name}]\n`);
-    const cfg = config && config.adapter === name ? config : {};
+    const cfg = config && resolveAdapter(config.adapter) === name ? config : {};
     const a = loadAdapter(name, cfg);
     const findings = await a.doctor();
     for (const f of findings) line(f.ok, f.msg, f.remediation);
