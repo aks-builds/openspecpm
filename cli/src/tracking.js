@@ -50,19 +50,57 @@ export async function loadChange(name, cwd = process.cwd()) {
   return { name, dir, proposal, items, mtime };
 }
 
-export function unmetDeps(task, allTasks) {
+/**
+ * Resolve a dep token against a change. Tokens may be:
+ *   "task title"                — same-change reference by title
+ *   "<external-id>"             — same-change reference by remote id
+ *   "<feature>/<task title>"    — cross-change reference by title
+ *   "<feature>/<external-id>"   — cross-change reference by remote id
+ */
+function resolveDep(dep, change, allChanges) {
+  const cross = String(dep).match(/^([^/]+)\/(.+)$/);
+  if (cross) {
+    const [, featureName, rest] = cross;
+    const target = allChanges.find((c) => c.name === featureName);
+    if (!target) return { found: false };
+    const ref = target.items.find((t) => t.title === rest) ?? target.items.find((t) => String(t.external_id) === String(rest));
+    return ref ? { found: true, ref } : { found: false };
+  }
+  const ref = change.items.find((t) => t.title === dep) ?? change.items.find((t) => String(t.external_id) === String(dep));
+  return ref ? { found: true, ref } : { found: false };
+}
+
+export function unmetDeps(task, allTasks, options = {}) {
+  // Backwards compat: when called with a flat task list, treat as same-change.
+  // When called with options.change + options.allChanges, support cross-feature deps.
   const deps = task.depends_on ?? [];
   if (!deps.length) return [];
+
+  const unmet = [];
+  if (options.change && options.allChanges) {
+    for (const dep of deps) {
+      const r = resolveDep(dep, options.change, options.allChanges);
+      if (!r.found) { unmet.push({ dep, reason: 'not-found' }); continue; }
+      const ref = r.ref;
+      if (ref.done || (ref.sync_state === 'created' && ref.closed)) continue;
+      unmet.push({ dep, reason: ref.sync_state === 'failed' ? 'dep-failed' : 'dep-open' });
+    }
+    return unmet;
+  }
+
+  // Legacy path
   const byTitle = new Map(allTasks.map((t) => [t.title, t]));
   const byId = new Map(allTasks.filter((t) => t.external_id).map((t) => [String(t.external_id), t]));
-  const unmet = [];
   for (const dep of deps) {
-    const ref = byTitle.get(dep) ?? byId.get(String(dep));
-    if (!ref) {
-      unmet.push({ dep, reason: 'not-found' });
+    const cross = String(dep).match(/^([^/]+)\/(.+)$/);
+    if (cross) {
+      // Cross-feature dep with legacy callsite — we can't resolve, mark not-found.
+      unmet.push({ dep, reason: 'cross-feature-unresolved' });
       continue;
     }
-    if (ref.done || ref.sync_state === 'created' && ref.closed) continue;
+    const ref = byTitle.get(dep) ?? byId.get(String(dep));
+    if (!ref) { unmet.push({ dep, reason: 'not-found' }); continue; }
+    if (ref.done || (ref.sync_state === 'created' && ref.closed)) continue;
     if (!ref.done) unmet.push({ dep, reason: ref.sync_state === 'failed' ? 'dep-failed' : 'dep-open' });
   }
   return unmet;
@@ -74,7 +112,7 @@ export function findNextTasks(changes) {
     for (const task of change.items) {
       if (task.done) continue;
       if (task.sync_state === 'created' && task.closed) continue;
-      const unmet = unmetDeps(task, change.items);
+      const unmet = unmetDeps(task, change.items, { change, allChanges: changes });
       if (unmet.length === 0) candidates.push({ change: change.name, task });
     }
   }
@@ -86,7 +124,7 @@ export function findBlockedTasks(changes) {
   for (const change of changes) {
     for (const task of change.items) {
       if (task.done) continue;
-      const unmet = unmetDeps(task, change.items);
+      const unmet = unmetDeps(task, change.items, { change, allChanges: changes });
       if (unmet.length > 0) blocked.push({ change: change.name, task, unmet });
     }
   }

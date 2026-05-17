@@ -1,0 +1,265 @@
+<mxfile host="app.diagrams.net" agent="openspecpm-scaffold" version="24.0.0">
+  <diagram name="OpenSpecPM Lifecycle" id="lifecycle">
+    <mxGraphModel dx="2000" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TITLE -->
+        <mxCell id="title" value="OpenSpecPM — End-to-End Lifecycle" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1620" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Idea → proposal → BDD specs → tasks → tracked work items → shipped code. Each row is a phase; arrows enter and exit at cell edges so they never cut through content." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="40" y="56" width="1620" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 1: PLAN ===== -->
+        <mxCell id="phase_plan_label" value="① PLAN" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#6C8EBF" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="120" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="step_idea" value="💡  Idea&#10;(stakeholder feature,&#10;bug, or refactor need)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=12;align=center;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_propose_box" value="openspecpm propose &lt;feature&gt;&#10;&#10;Shells out to OpenSpec CLI.&#10;Soft BDD lint after authoring.&#10;--offline scaffolds from templates." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="320" y="140" width="280" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="artifact_proposal" value="📄  openspec/changes/&lt;feature&gt;/&#10;  ├── proposal.md&#10;  ├── design.md&#10;  ├── tasks.md (empty items[])&#10;  └── specs/main.md (Given/When/Then)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#444444;fontSize=10;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="660" y="140" width="320" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_decompose_box" value="openspecpm decompose &lt;feature&gt;&#10;&#10;Extracts tasks from proposal headings,&#10;checklists, and BDD scenarios in specs/." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="1040" y="140" width="300" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="artifact_tasks" value="📄  tasks.md (populated)&#10;items:&#10;  - title: &quot;Implement X&quot;&#10;    sync_state: pending&#10;    depends_on: []&#10;    parallel: true" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#444444;fontSize=10;fontFamily=Courier New;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="1400" y="140" width="260" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 2: REVIEW + SYNC ===== -->
+        <mxCell id="phase_sync_label" value="② REVIEW + SYNC" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#9673A6" vertex="1" parent="1">
+          <mxGeometry x="40" y="290" width="200" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="step_review" value="👀  Human review&#10;(stakeholders sign off&#10;on BDD scenarios)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=12;align=center;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="330" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_validate_box" value="openspecpm validate&#10;&#10;Schema sweep:&#10;• proposal frontmatter&#10;• task sync_state enum&#10;• depends_on resolves&#10;• BDD lint summary" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="320" y="330" width="280" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_sync_box" value="openspecpm sync &lt;feature&gt;&#10;&#10;Hard BDD lint (--force overrides).&#10;Idempotent: re-runs skip created,&#10;retry failed. Updates frontmatter&#10;with external_id + sync_state." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="660" y="330" width="320" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="adapter_note" value="↓ via Adapter contract  ·  capabilities() drives hierarchy collapse" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#9673A6" vertex="1" parent="1">
+          <mxGeometry x="1040" y="290" width="620" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="backend_github_lc" value="GitHub&#10;depth 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#222222;strokeColor=#000000;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1040" y="330" width="120" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="backend_azure_lc" value="ADO Boards&#10;depth 4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0078D7;strokeColor=#005A9E;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1170" y="330" width="120" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="backend_jira_lc" value="Jira&#10;depth 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0052CC;strokeColor=#003580;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1300" y="330" width="120" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="backend_linear_lc" value="Linear&#10;depth 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5E6AD2;strokeColor=#3F47A0;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1430" y="330" width="120" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="backend_gitlab_lc" value="GitLab&#10;depth 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FC6D26;strokeColor=#C44A19;fontColor=#FFFFFF;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1560" y="330" width="100" height="46" as="geometry" />
+        </mxCell>
+
+        <mxCell id="backend_one_of" value="↑ exactly one selected at init time" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="1040" y="386" width="620" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 3: EXECUTE ===== -->
+        <mxCell id="phase_exec_label" value="③ EXECUTE" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#D79B00" vertex="1" parent="1">
+          <mxGeometry x="40" y="470" width="200" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_next_box" value="openspecpm next&#10;&#10;Lists open tasks with&#10;no unmet dependencies." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="40" y="510" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_fanout_box" value="openspecpm fan-out &lt;feature&gt;&#10;&#10;Emits ready-to-paste agent prompts&#10;for parallel:true tasks. Each prompt&#10;embeds proposal + design + spec." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="320" y="510" width="280" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="step_build" value="🤖  Agents implement&#10;(or human developer)&#10;&#10;BDD scenarios are the&#10;acceptance criteria." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#D97757;fontSize=12;align=center;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="660" y="510" width="280" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_comment_box" value="openspecpm comment&#10;&lt;feature&gt; &lt;task&gt; -m &quot;...&quot;&#10;&#10;Broadcasts progress.md (or -m) to the&#10;PM tool with auto SYNCED timestamp." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="1000" y="510" width="320" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_reconcile_box" value="openspecpm reconcile &lt;feature&gt;&#10;&#10;Pulls remote work-item state back&#10;into local frontmatter — detects&#10;out-of-band closes / moves." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="1380" y="510" width="280" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 4: TRACK ===== -->
+        <mxCell id="phase_track_label" value="④ TRACK" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#82B366" vertex="1" parent="1">
+          <mxGeometry x="40" y="650" width="200" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_status_box" value="status&#10;Per-change task counts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="40" y="690" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cmd_standup_box" value="standup [--broadcast]&#10;Recent progress, → Slack/Teams" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="300" y="690" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cmd_blocked_box" value="blocked&#10;Tasks waiting on deps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="560" y="690" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cmd_search_box" value="search &lt;query&gt;&#10;Grep across changes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="820" y="690" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cmd_watch_box" value="watch [feature]&#10;Debounced re-lint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1080" y="690" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cmd_bug_box" value="bug-report &lt;feat&gt; &lt;task&gt;&#10;File a linked regression" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#82B366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1340" y="690" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 5: SHIP ===== -->
+        <mxCell id="phase_ship_label" value="⑤ SHIP" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#D32F2F" vertex="1" parent="1">
+          <mxGeometry x="40" y="790" width="200" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cmd_ship_box" value="openspecpm ship &lt;feature&gt;  (or --all-ready)&#10;&#10;1. Close every synced task via adapter&#10;2. Close the epic&#10;3. openspec archive → openspec/archive/&lt;date&gt;-&lt;feature&gt;/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#D32F2F;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="830" width="420" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="step_shipped" value="🚀  Shipped&#10;&#10;Code merged, work items closed,&#10;OpenSpec change archived,&#10;audit log persisted." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=12;align=center;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="500" y="830" width="280" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="step_loop" value="↻  Next feature&#10;&#10;Re-enter from step ①&#10;with the next idea." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=12;align=center;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="820" y="830" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cross_cut" value="Cross-cutting (runs on every command):&#10;• Audit log (.openspecpm/audit.log, secrets scrubbed)&#10;• Token-bucket rate limiting per adapter&#10;• OpenSpec version probe (anti-corruption layer)&#10;• Optional telemetry (opt-in, audit-only in alpha)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="1080" y="830" width="580" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- =================================== -->
+        <!-- ARROWS: edge-anchored, no overlaps   -->
+        <!-- =================================== -->
+
+        <!-- ROW 1 (left-to-right horizontals): idea → propose → proposal → decompose → tasks -->
+        <mxCell id="a1" style="endArrow=classic;html=1;strokeColor=#82B366;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="step_idea" target="cmd_propose_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a2" style="endArrow=classic;html=1;strokeColor=#444444;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_propose_box" target="artifact_proposal">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a3" style="endArrow=classic;html=1;strokeColor=#82B366;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="artifact_proposal" target="cmd_decompose_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a4" style="endArrow=classic;html=1;strokeColor=#444444;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_decompose_box" target="artifact_tasks">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 1 tasks.md → Row 2 review (down arrow on the right side, routed) -->
+        <mxCell id="a5" style="endArrow=classic;html=1;strokeColor=#444444;strokeWidth=1;dashed=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="artifact_tasks" target="step_review">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1400" y="280" />
+              <mxPoint x="260" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ROW 2 horizontals: review → validate → sync -->
+        <mxCell id="a6" style="endArrow=classic;html=1;strokeColor=#82B366;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="step_review" target="cmd_validate_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a7" style="endArrow=classic;html=1;strokeColor=#82B366;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_validate_box" target="cmd_sync_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- sync → backend cluster (only one arrow, into the GitHub box as the representative) -->
+        <mxCell id="a8" style="endArrow=classic;html=1;strokeColor=#9673A6;strokeWidth=2;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_sync_box" target="backend_github_lc">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 2 sync → Row 3 next (down-left routed) -->
+        <mxCell id="a9" style="endArrow=classic;html=1;strokeColor=#D79B00;strokeWidth=2;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_sync_box" target="cmd_next_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="470" />
+              <mxPoint x="150" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ROW 3 horizontals: next → fan-out → build → comment → reconcile -->
+        <mxCell id="a10" style="endArrow=classic;html=1;strokeColor=#D79B00;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_next_box" target="cmd_fanout_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a11" style="endArrow=classic;html=1;strokeColor=#D97757;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_fanout_box" target="step_build">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a12" style="endArrow=classic;html=1;strokeColor=#D79B00;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="step_build" target="cmd_comment_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a13" style="endArrow=classic;html=1;strokeColor=#D79B00;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_comment_box" target="cmd_reconcile_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 3 reconcile → Row 4 status (down-left routed) -->
+        <mxCell id="a14" style="endArrow=classic;html=1;strokeColor=#82B366;strokeWidth=2;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_reconcile_box" target="cmd_status_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1380" y="650" />
+              <mxPoint x="160" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ROW 4: track commands link sequentially (subtle, no labels) -->
+        <mxCell id="a15" style="endArrow=classic;html=1;strokeColor=#A5D6A7;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_status_box" target="cmd_standup_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a16" style="endArrow=classic;html=1;strokeColor=#A5D6A7;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_standup_box" target="cmd_blocked_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a17" style="endArrow=classic;html=1;strokeColor=#A5D6A7;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_blocked_box" target="cmd_search_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a18" style="endArrow=classic;html=1;strokeColor=#A5D6A7;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_search_box" target="cmd_watch_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a19" style="endArrow=classic;html=1;strokeColor=#A5D6A7;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_watch_box" target="cmd_bug_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 4 → Row 5 ship (down-left from bug back to ship) -->
+        <mxCell id="a20" style="endArrow=classic;html=1;strokeColor=#D32F2F;strokeWidth=2;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_bug_box" target="cmd_ship_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1340" y="790" />
+              <mxPoint x="250" y="790" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ROW 5: ship → shipped → loop -->
+        <mxCell id="a21" style="endArrow=classic;html=1;strokeColor=#2E7D32;strokeWidth=3;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="cmd_ship_box" target="step_shipped">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a22" style="endArrow=classic;html=1;strokeColor=#F9A825;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0" edge="1" parent="1" source="step_shipped" target="step_loop">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

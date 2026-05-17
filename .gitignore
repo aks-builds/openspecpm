@@ -13,6 +13,7 @@ Thumbs.db
 # OpenSpecPM local state (per-project, not committed)
 .openspecpm/state.json
 .openspecpm/config.local.json
+.openspecpm/audit.log
 
 # Secrets
 .env

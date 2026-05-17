@@ -1,14 +1,26 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
+import { audited } from '../src/audit.js';
 import { runInit } from '../src/commands/init.js';
 import { runDoctor } from '../src/commands/doctor.js';
 import { runPropose } from '../src/commands/propose.js';
+import { runDecompose } from '../src/commands/decompose.js';
 import { runSync } from '../src/commands/sync.js';
+import { runComment } from '../src/commands/comment.js';
+import { runReconcile } from '../src/commands/reconcile.js';
 import { runStatus } from '../src/commands/status.js';
 import { runStandup } from '../src/commands/standup.js';
 import { runNext } from '../src/commands/next.js';
 import { runBlocked } from '../src/commands/blocked.js';
+import { runValidate } from '../src/commands/validate.js';
+import { runSearch } from '../src/commands/search.js';
+import { runFanOut } from '../src/commands/fan-out.js';
+import { runBugReport } from '../src/commands/bug-report.js';
 import { runShip } from '../src/commands/ship.js';
+import { runHelp } from '../src/commands/help.js';
+import { runAssign } from '../src/commands/assign.js';
+import { runSyncAll, runShipAllReady } from '../src/commands/bulk.js';
+import { runWatch } from '../src/commands/watch.js';
 
 const program = new Command();
 
@@ -21,54 +33,161 @@ program
   .command('init')
   .description('Interactive wizard: pick a PM tool and write .openspecpm/config.json')
   .option('--non-interactive', 'Fail instead of prompting when input is required')
-  .action((opts) => runInit(opts).catch(fatal));
+  .action((opts) => audited('init', runInit)(opts).catch(fatal));
 
 program
   .command('doctor [adapter]')
   .description('Check auth + tooling health for one or all adapters')
-  .action((adapter) => runDoctor({ adapter }).catch(fatal));
+  .option('--install', 'Print OS-specific install commands for missing CLIs')
+  .option('--setup-auth', 'Print PAT/token URLs and required scopes')
+  .action((adapter, opts) => audited('doctor', runDoctor)({ adapter, install: opts.install, setupAuth: opts.setupAuth }).catch(fatal));
 
 program
   .command('propose <feature>')
   .description('Create an OpenSpec proposal (proposal.md, design.md, tasks.md, specs/) for <feature>')
   .option('-p, --prompt <text>', 'One-line description for the AI to seed the proposal')
-  .action((feature, opts) => runPropose({ feature, prompt: opts.prompt }).catch(fatal));
+  .option('-t, --type <type>', 'Change type: feature | bug | refactor | incident', 'feature')
+  .option('--offline', 'Scaffold from templates without calling the openspec CLI')
+  .action((feature, opts) => audited('propose', runPropose)({ feature, prompt: opts.prompt, type: opts.type, offline: opts.offline }).catch(fatal));
 
 program
-  .command('sync <feature>')
+  .command('decompose <feature>')
+  .description('Extract tasks from proposal + BDD scenarios into tasks.md')
+  .option('--force', 'Merge into an existing tasks.md instead of refusing')
+  .action((feature, opts) => audited('decompose', runDecompose)({ feature, force: opts.force }).catch(fatal));
+
+program
+  .command('sync [feature]')
   .description('Push an OpenSpec change to the configured PM tool (idempotent; BDD-linted)')
+  .option('--all', 'Sync every change under openspec/changes/')
   .option('--dry-run', 'Print the call plan without making remote changes')
   .option('--force', 'Bypass BDD lint errors')
-  .action((feature, opts) => runSync({ feature, dryRun: opts.dryRun, force: opts.force }).catch(fatal));
+  .option('--diff', 'Show the call plan in detail')
+  .option('-y, --yes', 'Skip the confirmation prompt for --all')
+  .action((feature, opts) => {
+    if (opts.all) {
+      return audited('sync-all', runSyncAll)({ dryRun: opts.dryRun, force: opts.force, yes: opts.yes }).catch(fatal);
+    }
+    if (!feature) {
+      process.stderr.write('error: provide a <feature> or pass --all\n');
+      process.exit(1);
+    }
+    return audited('sync', runSync)({ feature, dryRun: opts.dryRun, force: opts.force, diff: opts.diff }).catch(fatal);
+  });
+
+program
+  .command('comment <feature> <task>')
+  .description('Post a progress comment to the PM tool work item')
+  .option('-m, --message <text>', 'Inline message (otherwise reads from local progress.md)')
+  .option('--dry-run', 'Print the comment instead of posting')
+  .action((feature, task, opts) =>
+    audited('comment', runComment)({ feature, task, message: opts.message, dryRun: opts.dryRun }).catch(fatal),
+  );
+
+program
+  .command('reconcile <feature>')
+  .description('Pull remote state back into local task frontmatter')
+  .option('--dry-run', 'Show drift without writing local changes')
+  .action((feature, opts) => audited('reconcile', runReconcile)({ feature, dryRun: opts.dryRun }).catch(fatal));
 
 program
   .command('status')
   .description('Local snapshot: configured adapter + per-change task counts')
-  .action(() => runStatus().catch(fatal));
+  .action(() => audited('status', runStatus)().catch(fatal));
 
 program
   .command('standup')
   .description('Show progress updates within a recent window')
   .option('--since <window>', 'Time window: e.g. 12h, 2d, 1w', '24h')
-  .action((opts) => runStandup({ since: opts.since }).catch(fatal));
+  .option('--broadcast', 'Also POST to configured Slack/Teams/generic webhooks')
+  .action((opts) => audited('standup', runStandup)({ since: opts.since, broadcast: opts.broadcast }).catch(fatal));
 
 program
   .command('next')
   .description('List tasks ready to start (no unmet dependencies)')
   .option('-l, --limit <n>', 'Max items to show', (v) => parseInt(v, 10), 5)
-  .action((opts) => runNext({ limit: opts.limit }).catch(fatal));
+  .action((opts) => audited('next', runNext)({ limit: opts.limit }).catch(fatal));
 
 program
   .command('blocked')
   .description('List tasks waiting on unmet dependencies')
-  .action(() => runBlocked().catch(fatal));
+  .action(() => audited('blocked', runBlocked)().catch(fatal));
 
 program
-  .command('ship <feature>')
+  .command('validate')
+  .description('Schema + dependency + BDD-lint sweep across every change')
+  .action(() => audited('validate', runValidate)().catch(fatal));
+
+program
+  .command('search <query>')
+  .description('Grep across proposals, specs, tasks, and progress notes')
+  .option('-l, --limit <n>', 'Max matches to show', (v) => parseInt(v, 10), 50)
+  .option('--case-sensitive', 'Match case')
+  .action((query, opts) =>
+    audited('search', runSearch)({ query, limit: opts.limit, caseSensitive: opts.caseSensitive }).catch(fatal),
+  );
+
+program
+  .command('fan-out <feature>')
+  .description('Emit ready-to-paste agent prompts for parallel:true tasks')
+  .option('-l, --limit <n>', 'Max prompts to emit', (v) => parseInt(v, 10), 5)
+  .action((feature, opts) => audited('fan-out', runFanOut)({ feature, limit: opts.limit }).catch(fatal));
+
+program
+  .command('bug-report <feature> <task>')
+  .description('File a regression bug linked to a shipped task')
+  .option('-t, --title <text>', 'Bug title (required)')
+  .option('-b, --body <text>', 'Bug body')
+  .action((feature, task, opts) =>
+    audited('bug-report', runBugReport)({ feature, task, title: opts.title, body: opts.body }).catch(fatal),
+  );
+
+program
+  .command('assign <feature> <task>')
+  .description('Set assignee / sprint / iteration / area / story-points on a synced task')
+  .option('--assignee <id>', 'Assignee id (backend-specific)')
+  .option('--sprint <id>', 'Sprint / cycle / milestone id (whichever the backend supports)')
+  .option('--iteration <path>', 'Iteration path (Azure DevOps; alias for --sprint elsewhere)')
+  .option('--area <path>', 'Area path (Azure DevOps)')
+  .option('--story-points <n>', 'Story points / estimate / weight')
+  .action((feature, task, opts) =>
+    audited('assign', runAssign)({
+      feature, task,
+      assignee: opts.assignee, sprint: opts.sprint, iteration: opts.iteration,
+      area: opts.area, storyPoints: opts.storyPoints,
+    }).catch(fatal),
+  );
+
+program
+  .command('ship [feature]')
   .description('Close all work items for <feature> and archive the OpenSpec change')
+  .option('--all-ready', 'Ship every change whose tasks are all synced (no pending/failed)')
   .option('-y, --yes', 'Skip the confirmation prompt')
   .option('--skip-archive', 'Close work items but leave openspec/changes/<feature>/ in place')
-  .action((feature, opts) => runShip({ feature, yes: opts.yes, skipArchive: opts.skipArchive }).catch(fatal));
+  .action((feature, opts) => {
+    if (opts.allReady) {
+      return audited('ship-all-ready', runShipAllReady)({ yes: opts.yes, skipArchive: opts.skipArchive }).catch(fatal);
+    }
+    if (!feature) {
+      process.stderr.write('error: provide a <feature> or pass --all-ready\n');
+      process.exit(1);
+    }
+    return audited('ship', runShip)({ feature, yes: opts.yes, skipArchive: opts.skipArchive }).catch(fatal);
+  });
+
+program
+  .command('watch [feature]')
+  .description('Re-lint on file change. Use --all to validate the whole project on every change.')
+  .option('--all', 'Validate every change instead of linting one feature')
+  .option('--debounce <ms>', 'Debounce window in milliseconds', (v) => parseInt(v, 10), 300)
+  .action((feature, opts) =>
+    audited('watch', runWatch)({ feature, allChanges: opts.all, debounceMs: opts.debounce }).catch(fatal),
+  );
+
+program
+  .command('help-table [topic]')
+  .description('Context-aware help grouped by workflow phase')
+  .action((topic) => { runHelp({ topic }); });
 
 program.parseAsync(process.argv);
 
