@@ -138,6 +138,35 @@ export class GitHubAdapter extends Adapter {
     await this.#gh(['sub-issue', 'add', '--repo', this.#repo, '--parent', parent.id, '--child', child.id]);
   }
 
+  async listChildren(parent) {
+    try {
+      const raw = await this.#gh(['sub-issue', 'list', '--repo', this.#repo, '--parent', parent.id]);
+      // Newer versions of the extension support --json; older ones return text.
+      try {
+        const list = JSON.parse(raw);
+        return Array.isArray(list)
+          ? list.map((d) => ({ adapter: 'github', id: String(d.number ?? d.id), url: d.url }))
+          : [];
+      } catch {
+        // Fallback: parse `#42 - Title` lines.
+        return (raw ?? '').split(/\r?\n/).map((l) => l.match(/#(\d+)/)?.[1]).filter(Boolean)
+          .map((id) => ({ adapter: 'github', id, url: `https://github.com/${this.config.repo}/issues/${id}` }));
+      }
+    } catch {
+      return [];
+    }
+  }
+
+  async removeChild(parent, child) {
+    try {
+      await this.#gh(['sub-issue', 'remove', '--repo', this.#repo, '--parent', parent.id, '--child', child.id]);
+    } catch (err) {
+      throw new AdapterError(`Failed to remove sub-issue link: ${err.message}`, {
+        remediation: 'Ensure the gh-sub-issue extension is installed: `gh extension install yahsan2/gh-sub-issue`.',
+      });
+    }
+  }
+
   async addProgressComment(item, body) {
     await this.#gh([
       'issue', 'comment', item.id,

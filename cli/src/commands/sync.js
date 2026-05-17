@@ -7,7 +7,7 @@ import { changeDir, changeExists } from '../openspec-bridge.js';
 import { lintChange, summarize, formatFindings } from '../bdd/linter.js';
 import * as fm from '../frontmatter.js';
 
-export async function runSync({ feature, dryRun = false, force = false } = {}) {
+export async function runSync({ feature, dryRun = false, force = false, diff = false } = {}) {
   if (!feature) throw new Error('feature name is required');
   const config = await readConfig();
   if (!config) {
@@ -38,6 +38,11 @@ export async function runSync({ feature, dryRun = false, force = false } = {}) {
 
   const adapter = loadAdapter(config.adapter, config);
   if (!dryRun) await adapter.init();
+
+  if (diff) {
+    out(`\n[diff] adapter: ${config.adapter}`);
+    out(`[diff] hierarchy depth: ${adapter.capabilities().hierarchyDepth}`);
+  }
 
   const proposalPath = join(dir, 'proposal.md');
   const proposalRaw = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
