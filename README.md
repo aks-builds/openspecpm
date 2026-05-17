@@ -308,11 +308,17 @@ OpenSpecPM is organized into five phases, each with a reference doc under [`skil
 
 ## Architecture highlights
 
-- **Adapter contract.** Every backend implements the same 9-method interface plus `capabilities()` reporting hierarchy depth (GitHub=2, Jira=3, ADO=4). The sync layer collapses levels gracefully.
+- **Adapter contract.** Every backend implements the same 9-method interface plus `capabilities()` reporting hierarchy depth (GitHub=2, Linear=2, GitLab=2, Jira=3, ADO=4). The sync layer collapses levels gracefully.
 - **OpenSpec anti-corruption layer.** Version-pinned probe on every CLI invocation. One constant absorbs upstream path moves.
 - **Idempotent sync.** Each task carries `sync_state` + `external_id` in frontmatter. Re-running `sync` skips created items and retries failures. Comments use `<!-- SYNCED: <ts> -->` markers to prevent duplication.
 - **Token-bucket rate-limiting.** Per-adapter presets tuned for each backend's published limits.
 - **BDD linter.** Heuristic checks: one Given/When/Then per scenario, observable verbs in Then, deny-list for vague phrases ("should work"), tautology detection via word-bigram similarity.
+
+## Roadmap
+
+Active v2 work is tracked as OpenSpec changes under [`openspec/changes/`](openspec/changes/README.md). Six features are scaffolded with full proposals, dependency-aware task lists, and BDD scenarios: dependency-graph visualization, LLM-backed BDD reviewer, spec → test scaffolding, compliance traceability export, three new adapters (Notion / ClickUp / Asana), and a real agent orchestrator that graduates `fan-out` from prompt-emitter to dispatcher.
+
+OpenSpecPM dogfoods itself: anyone can `openspecpm next` to see what's ready to start, or `openspecpm sync <change>` to push any of the six into a tracked PM tool.
 
 ## Project structure
 

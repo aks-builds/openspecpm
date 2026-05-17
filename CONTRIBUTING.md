@@ -16,7 +16,7 @@ Thanks for your interest. OpenSpecPM is a spec-driven, BDD-shaped PM tool for AI
 git clone https://github.com/aks-builds/openspecpm.git
 cd openspecpm
 npm install
-npm test                          # 49 tests should pass
+npm test                          # 91 tests should pass
 node cli/bin/openspecpm.js --help # smoke-test the CLI
 ```
 

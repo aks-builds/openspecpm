@@ -47,4 +47,4 @@ Out of scope:
 
 ## Handling secrets
 
-OpenSpecPM **never writes auth tokens to `.openspecpm/config.json`**. All credentials flow through environment variables (`AZURE_DEVOPS_EXT_PAT`, `JIRA_EMAIL`, `JIRA_API_TOKEN`) or external tooling (`gh auth login`). If you find a code path that persists a secret to disk, please report it.
+OpenSpecPM **never writes auth tokens to `.openspecpm/config.json`**. All credentials flow through environment variables (`AZURE_DEVOPS_EXT_PAT`, `JIRA_EMAIL`, `JIRA_API_TOKEN`, `LINEAR_API_KEY`, `GITLAB_TOKEN`) or external tooling (`gh auth login`). If you find a code path that persists a secret to disk, please report it.

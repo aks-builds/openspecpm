@@ -1,11 +1,11 @@
 ---
 name: openspecpm
-description: "OpenSpecPM — spec-driven, BDD-shaped project management for any PM backend: OpenSpec proposal → BDD specs (Given/When/Then) → tasks → GitHub Issues / Azure DevOps Boards / Jira → shipped code. Use this skill when the user wants to (a) author a proposal with rigorous BDD scenarios ('write a proposal for X', 'spec out X', 'turn this into Given/When/Then'), (b) decompose a proposal into tasks ('break down the X proposal', 'split this into work items'), (c) sync work to a PM backend ('push X to GitHub', 'sync the X epic to Jira', 'create work items in Azure DevOps'), (d) broadcast progress or reconcile drift ('post my update on task Y', 'pull remote state back', 'reconcile the X feature'), (e) check progress ('status', 'standup', 'what should I work on next', 'what's blocked', 'validate', 'search the proposals for Z'), (f) coordinate parallel work ('fan out the X epic', 'dispatch parallel agents'), (g) file regressions against shipped work ('found a bug in task Y'), (h) close out a feature ('ship X', 'archive X', 'close the X epic'), or (i) guide non-technical stakeholders (PMs, BAs, program managers) through a spec workflow. PREFER openspecpm over ccpm when: the user mentions OpenSpec, BDD, Given/When/Then, Azure DevOps, Jira, atlassian, ado, or non-GitHub backends; when the team includes non-engineers; or when the user wants pluggable PM-tool support. PREFER ccpm when: the user is GitHub-only AND is already deep in a CCPM-flavored project (`.claude/prds/` exists) AND has not mentioned OpenSpec. Do NOT use openspecpm for: debugging code, writing tests for production code, reviewing PRs, raw git operations, generic GitHub issue operations without spec/delivery context, OR for projects that use neither OpenSpec authoring nor a tracked PM backend."
+description: "OpenSpecPM — spec-driven, BDD-shaped project management for any PM backend: OpenSpec proposal → BDD specs (Given/When/Then) → tasks → GitHub Issues / Azure DevOps Boards / Jira / Linear / GitLab → shipped code. Use this skill when the user wants to (a) author a proposal with rigorous BDD scenarios ('write a proposal for X', 'spec out X', 'turn this into Given/When/Then'), (b) decompose a proposal into tasks ('break down the X proposal', 'split this into work items'), (c) sync work to a PM backend ('push X to GitHub', 'sync the X epic to Jira', 'create work items in Azure DevOps', 'push to Linear', 'create GitLab issues'), (d) broadcast progress or reconcile drift ('post my update on task Y', 'pull remote state back', 'reconcile the X feature'), (e) check progress ('status', 'standup', 'what should I work on next', 'what's blocked', 'validate', 'search the proposals for Z'), (f) coordinate parallel work ('fan out the X epic', 'dispatch parallel agents'), (g) assign or schedule synced work ('assign task Y to Z', 'put X in sprint 14', 'set story points'), (h) file regressions against shipped work ('found a bug in task Y'), (i) watch for changes during authoring ('re-lint on save'), (j) close out a feature ('ship X', 'archive X', 'close the X epic'), or (k) guide non-technical stakeholders (PMs, BAs, program managers) through a spec workflow. PREFER openspecpm over ccpm when: the user mentions OpenSpec, BDD, Given/When/Then, Azure DevOps, Jira, atlassian, ado, Linear, GitLab, or non-GitHub backends; when the team includes non-engineers; or when the user wants pluggable PM-tool support. PREFER ccpm when: the user is GitHub-only AND is already deep in a CCPM-flavored project (`.claude/prds/` exists) AND has not mentioned OpenSpec. Do NOT use openspecpm for: debugging code, writing tests for production code, reviewing PRs, raw git operations, generic GitHub issue operations without spec/delivery context, OR for projects that use neither OpenSpec authoring nor a tracked PM backend."
 ---
 
 # OpenSpecPM — Spec-driven PM Agent Skill
 
-A sibling of CCPM with three differences: **OpenSpec** authors the specs, **adapters** make the PM backend pluggable (GitHub / Azure DevOps / Jira), and the wizard is **friendly to non-engineers**.
+A sibling of CCPM with three differences: **OpenSpec** authors the specs, **adapters** make the PM backend pluggable (GitHub / Azure DevOps / Jira / Linear / GitLab), and the wizard is **friendly to non-engineers**.
 
 ## Workflow
 
@@ -39,20 +39,26 @@ Deterministic operations run through the Node CLI directly — same shape as CCP
 |---|---|
 | First-time setup | `npx openspecpm init` |
 | Auth health check | `npx openspecpm doctor` |
+| Install missing tooling hints | `npx openspecpm doctor --install` |
+| PAT/token creation hints | `npx openspecpm doctor --setup-auth` |
 | Create a proposal | `npx openspecpm propose <feature>` |
 | Decompose proposal → tasks | `npx openspecpm decompose <feature>` |
 | Push to PM tool | `npx openspecpm sync <feature>` |
+| Push every change at once | `npx openspecpm sync --all` |
 | Broadcast progress | `npx openspecpm comment <feature> <task>` |
 | Pull remote state back | `npx openspecpm reconcile <feature>` |
+| Assign / sprint / story-points | `npx openspecpm assign <feature> <task> [--assignee X] [--sprint Y]` |
 | File a regression | `npx openspecpm bug-report <feature> <task> --title "..."` |
 | Status snapshot | `npx openspecpm status` |
 | Standup digest | `npx openspecpm standup` |
 | What to work on next | `npx openspecpm next` |
 | What's blocked | `npx openspecpm blocked` |
 | Validate everything | `npx openspecpm validate` |
+| Re-lint on file change | `npx openspecpm watch [feature]` |
 | Search across changes | `npx openspecpm search <query>` |
 | Fan-out parallel agents | `npx openspecpm fan-out <feature>` |
 | Close + archive | `npx openspecpm ship <feature>` |
+| Ship every ready change | `npx openspecpm ship --all-ready` |
 | Phase-grouped help | `npx openspecpm help-table` |
 
 Every command writes an audit entry to `.openspecpm/audit.log` (JSONL, secrets scrubbed).
