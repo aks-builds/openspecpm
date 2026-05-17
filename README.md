@@ -53,6 +53,24 @@ OpenSpecPM shells out to [OpenSpec](https://github.com/Fission-AI/OpenSpec); ins
 npm install -g @fission-ai/openspec
 ```
 
+## In action
+
+> A few screenshots of OpenSpecPM doing work. Source images live in [`docs/screenshots/`](docs/screenshots/) — see that folder's README for naming and size conventions.
+
+<!--
+Drop a PNG into docs/screenshots/ then uncomment the matching line below.
+Each block has a one-line caption followed by the image reference.
+-->
+
+<!-- **Interactive setup** — pick a PM tool, wire credentials, write `.openspecpm/config.json`. -->
+<!-- ![openspecpm init wizard](docs/screenshots/init.png) -->
+
+<!-- **Authoring a proposal** — OpenSpec generates `proposal.md`, BDD specs, and `tasks.md`; soft-lint runs after. -->
+<!-- ![openspecpm propose](docs/screenshots/propose.png) -->
+
+<!-- **Tracking work** — `status`, `next`, `blocked`, `standup` give a live view of where every task is. -->
+<!-- ![openspecpm status](docs/screenshots/status.png) -->
+
 ## Quick start
 
 ```bash
