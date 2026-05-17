@@ -1,4 +1,6 @@
 import * as p from '@clack/prompts';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { writeConfig, readConfig } from '../config.js';
 import { listAdapters } from '../adapters/index.js';
 
@@ -10,6 +12,12 @@ export async function runInit({ nonInteractive = false } = {}) {
   }
 
   p.intro('openspecpm init — pick your PM tool');
+
+  // Detect existing OpenSpec setup (brownfield).
+  const openspecDir = join(process.cwd(), 'openspec');
+  if (existsSync(openspecDir)) {
+    p.note(`Detected existing openspec/ — will not re-run \`openspec init\`. Existing proposals will be reused.`, 'brownfield');
+  }
 
   if (existing) {
     const overwrite = await p.confirm({
@@ -28,6 +36,8 @@ export async function runInit({ nonInteractive = false } = {}) {
       { value: 'github', label: 'GitHub Issues / Projects', hint: 'Stable (gh CLI)' },
       { value: 'azure', label: 'Azure DevOps Boards', hint: 'Beta — REST + PAT' },
       { value: 'jira', label: 'Jira', hint: 'Beta — REST + API token' },
+      { value: 'linear', label: 'Linear', hint: 'Beta — GraphQL + Personal API Key' },
+      { value: 'gitlab', label: 'GitLab Issues', hint: 'Beta — REST v4 + PAT' },
     ],
   });
   if (p.isCancel(adapter)) return cancelled();
@@ -63,6 +73,31 @@ export async function runInit({ nonInteractive = false } = {}) {
     config.baseUrl = baseUrl;
     config.projectKey = projectKey;
     p.note('Set JIRA_EMAIL and JIRA_API_TOKEN in your environment.', 'jira auth');
+  } else if (adapter === 'linear') {
+    const teamId = await p.text({
+      message: 'Linear team ID (UUID from team settings URL)',
+      placeholder: '12345678-90ab-cdef-1234-567890abcdef',
+      validate: (v) => (v && v.length >= 4 ? undefined : 'Team ID is required'),
+    });
+    if (p.isCancel(teamId)) return cancelled();
+    config.teamId = teamId;
+    p.note('Set LINEAR_API_KEY in your environment (create at linear.app/settings/api).', 'linear auth');
+  } else if (adapter === 'gitlab') {
+    const baseUrl = await p.text({
+      message: 'GitLab base URL',
+      placeholder: 'https://gitlab.com',
+      validate: (v) => (/^https?:\/\//.test(v ?? '') ? undefined : 'Must be an http(s) URL'),
+    });
+    if (p.isCancel(baseUrl)) return cancelled();
+    const projectId = await p.text({
+      message: 'Project ID (numeric or URL-encoded "group/repo")',
+      placeholder: '12345 or mygroup%2Fmyrepo',
+      validate: (v) => (v ? undefined : 'Project ID is required'),
+    });
+    if (p.isCancel(projectId)) return cancelled();
+    config.baseUrl = baseUrl;
+    config.projectId = projectId;
+    p.note('Set GITLAB_TOKEN with `api` scope in your environment.', 'gitlab auth');
   }
 
   const path = await writeConfig(config);
