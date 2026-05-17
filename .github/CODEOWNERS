@@ -1,0 +1,26 @@
+# Code owners for openspecpm
+#
+# These owners will be the default reviewers for everything in this repo.
+# Order matters: the *last* matching pattern takes precedence.
+# Docs: https://docs.github.com/articles/about-code-owners
+
+# Default owner for everything
+*       @aks-builds
+
+# Agent Skill — keep the skill description and conventions tightly reviewed
+/skill/                                 @aks-builds
+/skill/openspecpm/SKILL.md              @aks-builds
+/skill/openspecpm/references/           @aks-builds
+
+# CLI core
+/cli/bin/                               @aks-builds
+/cli/src/adapters/                      @aks-builds
+/cli/src/bdd/                           @aks-builds
+/cli/src/openspec-bridge.js             @aks-builds
+
+# Release plumbing
+/.github/                               @aks-builds
+/package.json                           @aks-builds
+/package-lock.json                      @aks-builds
+/CHANGELOG.md                           @aks-builds
+/LICENSE                                @aks-builds
