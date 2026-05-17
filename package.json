@@ -1,0 +1,44 @@
+{
+  "name": "openspecpm",
+  "version": "0.1.0-alpha.0",
+  "description": "Spec-driven, BDD-shaped project management for AI agents — OpenSpec proposals synced to GitHub / Azure DevOps / Jira.",
+  "type": "module",
+  "bin": {
+    "openspecpm": "cli/bin/openspecpm.js"
+  },
+  "main": "cli/src/index.js",
+  "files": [
+    "cli",
+    "skill",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "start": "node cli/bin/openspecpm.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "openspec",
+    "ccpm",
+    "agent-skill",
+    "claude-code",
+    "project-management",
+    "bdd",
+    "spec-driven",
+    "github",
+    "azure-devops",
+    "jira"
+  ],
+  "license": "MIT",
+  "author": "aks-builds <its.aks@outlook.com>",
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "commander": "^12.1.0",
+    "execa": "^9.4.0",
+    "yaml": "^2.6.0"
+  }
+}
