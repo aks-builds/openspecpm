@@ -53,6 +53,34 @@ OpenSpecPM shells out to [OpenSpec](https://github.com/Fission-AI/OpenSpec); ins
 npm install -g @fission-ai/openspec
 ```
 
+## In action
+
+> A walkthrough of OpenSpecPM running against two sample features (`dark-mode`, `auth-rate-limit`). Source images live in [`docs/screenshots/`](docs/screenshots/); regenerate with `pwsh docs/screenshots/render.ps1` after CLI output changes — the renderer sets up its own sample data and cleans up after itself.
+
+**1 · Phase-grouped command reference** — `help-table` shows every command grouped by workflow phase (Setup → Plan → Sync → Track → Execute/Ship):
+
+![openspecpm help-table](docs/screenshots/help-table.png)
+
+**2 · Health check across every adapter** — `doctor` diagnoses auth + tooling for all five backends (GitHub, Azure DevOps, Jira, Linear, GitLab) with an English remediation hint on every failure:
+
+![openspecpm doctor](docs/screenshots/doctor.png)
+
+**3 · Multi-feature status** — `status` shows the configured adapter and per-change task counts (`synced / pending / failed / done`) at a glance:
+
+![openspecpm status](docs/screenshots/status.png)
+
+**4 · "What can I work on right now?"** — `next` lists tasks with no unmet dependencies, marking parallel-safe ones so multiple agents can pick them up:
+
+![openspecpm next](docs/screenshots/next.png)
+
+**5 · "What's waiting on what?"** — `blocked` lists every task held up by a dependency and names the blocker, so the path to unblocking is one read away:
+
+![openspecpm blocked](docs/screenshots/blocked.png)
+
+**6 · Project-wide validation** — `validate` runs the schema check and BDD linter across every change and reports per-feature error + warning counts:
+
+![openspecpm validate](docs/screenshots/validate.png)
+
 ## Quick start
 
 ```bash
