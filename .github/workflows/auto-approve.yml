@@ -2,9 +2,6 @@ name: Auto-approve
 
 # Calls the reusable workflow in aks-builds/workflows.
 # Approves only PRs opened by aks-builds; silently skips all others.
-# Required repo secrets (push them with workflows/scripts/distribute-secrets.ps1):
-#   APPROVER_APP_ID
-#   APPROVER_APP_PRIVATE_KEY
 
 on:
   pull_request:
