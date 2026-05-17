@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/aks-builds/openspecpm/security/advisories/new
+    about: Report security issues privately. Do NOT use the public issue tracker.
+  - name: Question / discussion
+    url: https://github.com/aks-builds/openspecpm/discussions
+    about: Open a discussion for usage questions, design ideas, or general chat.
