@@ -1,12 +1,11 @@
 {
   "name": "openspecpm",
   "version": "0.1.0-alpha.0",
-  "description": "Spec-driven, BDD-shaped project management for AI agents — OpenSpec proposals synced to GitHub / Azure DevOps / Jira.",
+  "description": "Spec-driven, BDD-shaped project management for AI agents — OpenSpec proposals synced to GitHub, Azure DevOps, Jira, Linear, or GitLab.",
   "type": "module",
   "bin": {
     "openspecpm": "cli/bin/openspecpm.js"
   },
-  "main": "cli/src/index.js",
   "files": [
     "cli/bin",
     "cli/src",
@@ -17,7 +16,8 @@
   ],
   "scripts": {
     "test": "node --test",
-    "start": "node cli/bin/openspecpm.js"
+    "start": "node cli/bin/openspecpm.js",
+    "prepublishOnly": "npm test"
   },
   "engines": {
     "node": ">=20"
@@ -27,15 +27,30 @@
     "ccpm",
     "agent-skill",
     "claude-code",
+    "anthropic",
+    "ai-agents",
     "project-management",
     "bdd",
     "spec-driven",
+    "cli",
+    "nodejs",
     "github",
+    "github-issues",
     "azure-devops",
-    "jira"
+    "jira",
+    "linear",
+    "gitlab"
   ],
   "license": "MIT",
   "author": "aks-builds <its.aks@outlook.com>",
+  "homepage": "https://github.com/aks-builds/openspecpm#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aks-builds/openspecpm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aks-builds/openspecpm/issues"
+  },
   "dependencies": {
     "@clack/prompts": "^1.4.0",
     "commander": "^14.0.3",
