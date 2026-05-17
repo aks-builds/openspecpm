@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Sprint 6
+
+- `doctor --install`: OS-detected install hints (winget on Windows, brew on macOS, apt on Linux) for `gh`, `az`, and `openspec`. Linear/GitLab/Jira don't need a CLI.
+- `doctor --setup-auth`: prints the PAT/token creation URL and required scopes for each adapter. Reduces the #1 onboarding cliff to one command.
+- Change-type templates (`cli/src/bdd/templates.js`): `feature`, `bug`, `refactor`, `incident`. `propose --type bug` (etc.) selects the template; `--offline` scaffolds from templates without calling `openspec` so users without OpenSpec installed can still start.
+- Brownfield-aware `init`: detects existing `openspec/` and notes that it will be reused rather than re-initialized.
+- Bulk operations: `sync --all` walks every change with confirmation + per-feature error isolation; `ship --all-ready` ships changes whose tasks are all `sync_state: created` (no pending/failed).
+- `sync --diff`: prints the adapter + capabilities summary alongside the call plan.
+- `watch [feature]`: debounced recursive `fs.watch` over `openspec/changes/`. Re-runs BDD lint per change, or `validate` with `--all`. SIGINT-clean.
+- Notifications (`cli/src/notify.js`): Slack incoming-webhook + Teams MessageCard + generic JSON envelope. Configured via `config.notify.{slack,teams,generic}`. Wired into `standup --broadcast`. Errors per target are collected, never raised.
+- Telemetry scaffold (`cli/src/telemetry.js`): opt-in via `config.telemetry.enabled = true`. Alpha policy: data is mirrored to the audit log only — **no network calls**. Captures command/duration/adapter/OS; never feature names or repo identifiers.
+- Plugin hook documented: `registerAdapter()` was added in Sprint 5; templates and notify both expose their config shapes for third parties to extend.
+- Tests: +14 (templates per type, notify routing per platform, install-hints lookup). Total 91/91 green.
+
 ### Sprint 5
 
 - Linear adapter (GraphQL at `api.linear.app/graphql`). Bearer auth via `LINEAR_API_KEY`. Full 9-method implementation: projectCreate for epics, issueCreate with parent linkage, cycle/estimate fields for sprints/story-points, workflow-state lookup for close, viewer query for doctor.

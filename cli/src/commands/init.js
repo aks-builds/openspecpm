@@ -1,4 +1,6 @@
 import * as p from '@clack/prompts';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { writeConfig, readConfig } from '../config.js';
 import { listAdapters } from '../adapters/index.js';
 
@@ -10,6 +12,12 @@ export async function runInit({ nonInteractive = false } = {}) {
   }
 
   p.intro('openspecpm init — pick your PM tool');
+
+  // Detect existing OpenSpec setup (brownfield).
+  const openspecDir = join(process.cwd(), 'openspec');
+  if (existsSync(openspecDir)) {
+    p.note(`Detected existing openspec/ — will not re-run \`openspec init\`. Existing proposals will be reused.`, 'brownfield');
+  }
 
   if (existing) {
     const overwrite = await p.confirm({

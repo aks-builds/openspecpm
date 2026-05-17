@@ -19,6 +19,8 @@ import { runBugReport } from '../src/commands/bug-report.js';
 import { runShip } from '../src/commands/ship.js';
 import { runHelp } from '../src/commands/help.js';
 import { runAssign } from '../src/commands/assign.js';
+import { runSyncAll, runShipAllReady } from '../src/commands/bulk.js';
+import { runWatch } from '../src/commands/watch.js';
 
 const program = new Command();
 
@@ -36,13 +38,17 @@ program
 program
   .command('doctor [adapter]')
   .description('Check auth + tooling health for one or all adapters')
-  .action((adapter) => audited('doctor', runDoctor)({ adapter }).catch(fatal));
+  .option('--install', 'Print OS-specific install commands for missing CLIs')
+  .option('--setup-auth', 'Print PAT/token URLs and required scopes')
+  .action((adapter, opts) => audited('doctor', runDoctor)({ adapter, install: opts.install, setupAuth: opts.setupAuth }).catch(fatal));
 
 program
   .command('propose <feature>')
   .description('Create an OpenSpec proposal (proposal.md, design.md, tasks.md, specs/) for <feature>')
   .option('-p, --prompt <text>', 'One-line description for the AI to seed the proposal')
-  .action((feature, opts) => audited('propose', runPropose)({ feature, prompt: opts.prompt }).catch(fatal));
+  .option('-t, --type <type>', 'Change type: feature | bug | refactor | incident', 'feature')
+  .option('--offline', 'Scaffold from templates without calling the openspec CLI')
+  .action((feature, opts) => audited('propose', runPropose)({ feature, prompt: opts.prompt, type: opts.type, offline: opts.offline }).catch(fatal));
 
 program
   .command('decompose <feature>')
@@ -51,11 +57,23 @@ program
   .action((feature, opts) => audited('decompose', runDecompose)({ feature, force: opts.force }).catch(fatal));
 
 program
-  .command('sync <feature>')
+  .command('sync [feature]')
   .description('Push an OpenSpec change to the configured PM tool (idempotent; BDD-linted)')
+  .option('--all', 'Sync every change under openspec/changes/')
   .option('--dry-run', 'Print the call plan without making remote changes')
   .option('--force', 'Bypass BDD lint errors')
-  .action((feature, opts) => audited('sync', runSync)({ feature, dryRun: opts.dryRun, force: opts.force }).catch(fatal));
+  .option('--diff', 'Show the call plan in detail')
+  .option('-y, --yes', 'Skip the confirmation prompt for --all')
+  .action((feature, opts) => {
+    if (opts.all) {
+      return audited('sync-all', runSyncAll)({ dryRun: opts.dryRun, force: opts.force, yes: opts.yes }).catch(fatal);
+    }
+    if (!feature) {
+      process.stderr.write('error: provide a <feature> or pass --all\n');
+      process.exit(1);
+    }
+    return audited('sync', runSync)({ feature, dryRun: opts.dryRun, force: opts.force, diff: opts.diff }).catch(fatal);
+  });
 
 program
   .command('comment <feature> <task>')
@@ -81,7 +99,8 @@ program
   .command('standup')
   .description('Show progress updates within a recent window')
   .option('--since <window>', 'Time window: e.g. 12h, 2d, 1w', '24h')
-  .action((opts) => audited('standup', runStandup)({ since: opts.since }).catch(fatal));
+  .option('--broadcast', 'Also POST to configured Slack/Teams/generic webhooks')
+  .action((opts) => audited('standup', runStandup)({ since: opts.since, broadcast: opts.broadcast }).catch(fatal));
 
 program
   .command('next')
@@ -140,12 +159,29 @@ program
   );
 
 program
-  .command('ship <feature>')
+  .command('ship [feature]')
   .description('Close all work items for <feature> and archive the OpenSpec change')
+  .option('--all-ready', 'Ship every change whose tasks are all synced (no pending/failed)')
   .option('-y, --yes', 'Skip the confirmation prompt')
   .option('--skip-archive', 'Close work items but leave openspec/changes/<feature>/ in place')
+  .action((feature, opts) => {
+    if (opts.allReady) {
+      return audited('ship-all-ready', runShipAllReady)({ yes: opts.yes, skipArchive: opts.skipArchive }).catch(fatal);
+    }
+    if (!feature) {
+      process.stderr.write('error: provide a <feature> or pass --all-ready\n');
+      process.exit(1);
+    }
+    return audited('ship', runShip)({ feature, yes: opts.yes, skipArchive: opts.skipArchive }).catch(fatal);
+  });
+
+program
+  .command('watch [feature]')
+  .description('Re-lint on file change. Use --all to validate the whole project on every change.')
+  .option('--all', 'Validate every change instead of linting one feature')
+  .option('--debounce <ms>', 'Debounce window in milliseconds', (v) => parseInt(v, 10), 300)
   .action((feature, opts) =>
-    audited('ship', runShip)({ feature, yes: opts.yes, skipArchive: opts.skipArchive }).catch(fatal),
+    audited('watch', runWatch)({ feature, allChanges: opts.all, debounceMs: opts.debounce }).catch(fatal),
   );
 
 program
