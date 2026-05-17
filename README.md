@@ -2,7 +2,7 @@
 
 [![test](https://github.com/aks-builds/openspecpm/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/aks-builds/openspecpm/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![tests](https://img.shields.io/badge/tests-49%20passing-brightgreen)](cli/tests)
+[![tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Faks-builds%2Fopenspecpm%2Fmain%2F.github%2Fbadges%2Ftests.json)](cli/tests)
 
 > Spec-driven, BDD-shaped project management for AI agents — author once in [OpenSpec](https://github.com/Fission-AI/OpenSpec), sync to GitHub Issues, Azure DevOps Boards, or Jira.
 
@@ -293,7 +293,7 @@ openspecpm/
     │   ├── config.js
     │   ├── frontmatter.js
     │   └── ratelimit.js
-    └── tests/             49 unit + contract tests
+    └── tests/             unit + contract tests (count badge is auto-updated by CI)
 ```
 
 ## License
