@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Post-Sprint 6 — docs, CI, v2 planning
+
+- **v2 roadmap scaffolded as 6 OpenSpec changes** under `openspec/changes/` (dogfood: the tool plans itself with itself). Each change has a full proposal, dependency-aware tasks.md, and BDD scenarios. Roadmap index lives at `openspec/changes/README.md`. Features: `dependency-graph`, `bdd-llm-reviewer`, `spec-to-tests`, `traceability-export`, `additional-adapters` (Notion + ClickUp + Asana), `agent-orchestrator`.
+- **CI tests badge moved to a Gist-backed shields.io endpoint** updated via `schneegans/dynamic-badges-action`. The previous workflow tried to push the badge JSON back to `main`, which branch protection (rightly) rejects. The gist approach updates badge data without ever pushing to main. Required repo settings: `GIST_SECRET` secret (PAT with `gist` scope) + `TESTS_BADGE_GIST_ID` variable.
+- **Test-count parsing fix in `.github/workflows/test.yml`**: `node --test` emits a `ℹ`-prefixed summary on TTY and `#`-prefixed (TAP) on CI. The old regex only matched `ℹ`, so badges silently read 0 in CI. Regex now matches both.
+- **README screenshot pipeline** at `docs/screenshots/render.ps1`: self-contained PowerShell renderer that scaffolds sample OpenSpec changes via `propose --offline`, captures 6 commands (`help-table`, `doctor`, `status`, `next`, `blocked`, `validate`) as terminal-style PNGs using `System.Drawing`, then cleans up. Working tree stays clean.
+- **README ASCII flow diagram** converted to a Mermaid `flowchart LR` block, matching the existing Architecture + Lifecycle diagrams.
+- **Stale-doc sweep**: Linear and GitLab (added Sprints 5–6) now appear in `SKILL.md`, `references/sync.md` (field-mapping table + capabilities + opening line), `references/structure.md` (hierarchy table), `references/conventions.md` (env vars), `SECURITY.md`, both issue templates, and the PR template. `SKILL.md` script-first table now includes `assign`, `watch`, `doctor --install`, `doctor --setup-auth`, `sync --all`, `ship --all-ready`. `CONTRIBUTING.md` test count corrected (49 → 91).
+
 ### Sprint 6
 
 - `doctor --install`: OS-detected install hints (winget on Windows, brew on macOS, apt on Linux) for `gh`, `az`, and `openspec`. Linear/GitLab/Jira don't need a CLI.
