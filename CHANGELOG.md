@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Sprint 5
+
+- Linear adapter (GraphQL at `api.linear.app/graphql`). Bearer auth via `LINEAR_API_KEY`. Full 9-method implementation: projectCreate for epics, issueCreate with parent linkage, cycle/estimate fields for sprints/story-points, workflow-state lookup for close, viewer query for doctor.
+- GitLab adapter (REST v4). PAT auth via `GITLAB_TOKEN` with `api` scope. Issues + issue links (`relates_to`/`blocks`), milestones as sprints, `weight` as story points, `state_event=close` for close.
+- Plugin hook: `registerAdapter(name, ctor, { aliases })` in `cli/src/adapters/index.js` lets third parties register without forking.
+- Cross-feature `depends_on`: tasks may reference `<feature>/<task-title>` or `<feature>/<external-id>`. `findNextTasks` and `findBlockedTasks` walk the full change set and resolve across features. Legacy same-change deps still work.
+- `assign <feature> <task>` command: sets assignee / sprint / iteration / area / story-points on a synced work item via `adapter.updateWorkItem`. Backend-agnostic surface — adapters pick up the keys they support.
+- GitHub adapter: `listChildren(parent)` and `removeChild(parent, child)` for full sub-issue hierarchy management.
+- Integration test harness under `cli/tests/integration/` — gated on `OPENSPECPM_INTEGRATION=1` + per-backend env vars. README + harness helpers; CI does not run them.
+- Init wizard adds Linear + GitLab options with auth hints.
+- Tests: +14 (Linear adapter contract, GitLab adapter contract, cross-feature deps). Total 77/77 green.
+
 ### Sprint 4
 
 - `comment <feature> <task>`: post local `progress.md` (or `-m "..."`) to the PM tool with an auto-generated `<!-- SYNCED: <iso> -->` marker; appends to local progress for traceability.

@@ -19,15 +19,6 @@ It is a sibling of [CCPM](https://github.com/automazeio/ccpm), with three differ
 2. **The PM tool is pluggable** — an interactive wizard at `init` time picks GitHub Issues/Projects, Azure DevOps Boards, or Jira.
 3. **Built for non-engineers too** — PMs/BAs/PgMs can drive the flow. A `doctor` command owns auth-setup pain. Worktrees are hidden by default.
 
-## Status
-
-Sprint 1 ✅ — GitHub adapter, OpenSpec bridge, init/propose/sync/doctor.
-Sprint 2 ✅ — Azure DevOps + Jira adapters (REST), structure/sync/execute skill references.
-Sprint 3 ✅ — BDD linter (soft at propose, hard at sync), status/standup/next/blocked/ship, track.md.
-Sprint 4 ✅ — comment/reconcile/decompose/validate/search/fan-out/bug-report/help-table, audit log.
-
-58 tests passing on Node 20. See [`CHANGELOG.md`](CHANGELOG.md) for the running log.
-
 ## Install
 
 ```bash

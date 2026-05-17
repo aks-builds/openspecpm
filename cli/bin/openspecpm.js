@@ -18,6 +18,7 @@ import { runFanOut } from '../src/commands/fan-out.js';
 import { runBugReport } from '../src/commands/bug-report.js';
 import { runShip } from '../src/commands/ship.js';
 import { runHelp } from '../src/commands/help.js';
+import { runAssign } from '../src/commands/assign.js';
 
 const program = new Command();
 
@@ -120,6 +121,22 @@ program
   .option('-b, --body <text>', 'Bug body')
   .action((feature, task, opts) =>
     audited('bug-report', runBugReport)({ feature, task, title: opts.title, body: opts.body }).catch(fatal),
+  );
+
+program
+  .command('assign <feature> <task>')
+  .description('Set assignee / sprint / iteration / area / story-points on a synced task')
+  .option('--assignee <id>', 'Assignee id (backend-specific)')
+  .option('--sprint <id>', 'Sprint / cycle / milestone id (whichever the backend supports)')
+  .option('--iteration <path>', 'Iteration path (Azure DevOps; alias for --sprint elsewhere)')
+  .option('--area <path>', 'Area path (Azure DevOps)')
+  .option('--story-points <n>', 'Story points / estimate / weight')
+  .action((feature, task, opts) =>
+    audited('assign', runAssign)({
+      feature, task,
+      assignee: opts.assignee, sprint: opts.sprint, iteration: opts.iteration,
+      area: opts.area, storyPoints: opts.storyPoints,
+    }).catch(fatal),
   );
 
 program
