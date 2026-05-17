@@ -2,7 +2,7 @@
 
 [![test](https://github.com/aks-builds/openspecpm/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/aks-builds/openspecpm/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Faks-builds%2FREPLACE_WITH_GIST_ID%2Fraw%2Ftests.json)](cli/tests)
+[![tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Faks-builds%2F03ce34dc5c6486c004dd8cf4c27ea87c%2Fraw%2Ftests.json)](cli/tests)
 
 > Spec-driven, BDD-shaped project management for AI agents — author once in [OpenSpec](https://github.com/Fission-AI/OpenSpec), sync to GitHub Issues, Azure DevOps Boards, or Jira.
 
