@@ -25,6 +25,8 @@ Never write tokens to `.openspecpm/config.json`. Use environment variables:
 - GitHub: `gh auth login` handles the token; no env var needed.
 - Azure DevOps: `AZURE_DEVOPS_EXT_PAT` (Work Items: Read/Write).
 - Jira: `JIRA_EMAIL` + `JIRA_API_TOKEN`.
+- Linear: `LINEAR_API_KEY`.
+- GitLab: `GITLAB_TOKEN` (`api` scope).
 
 ## Frontmatter schemas
 

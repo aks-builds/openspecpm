@@ -39,6 +39,8 @@ The backend's `capabilities().hierarchyDepth` determines how the structure proje
 | Backend | Depth | Mapping |
 |---|---|---|
 | GitHub | 2 | Epic issue → sub-issues (via `gh-sub-issue`) |
+| Linear | 2 | Project → Issues |
+| GitLab | 2 | Parent issue → linked child issues (`relates_to` / `blocks`) |
 | Jira | 3 | Epic → Story → Sub-task |
 | Azure DevOps | 4 | Epic → Feature → User Story → Task |
 

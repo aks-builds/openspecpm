@@ -26,7 +26,7 @@ npx openspecpm <...>
 - OpenSpecPM version: `<output of: npx openspecpm --version>`
 - Node version: `<output of: node --version>`
 - OS + version:
-- Adapter in use: `github` / `azure` / `jira`
+- Adapter in use: `github` / `azure` / `jira` / `linear` / `gitlab`
 - OpenSpec version (if relevant): `<output of: openspec --version>`
 
 ## Logs

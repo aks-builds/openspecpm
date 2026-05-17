@@ -41,4 +41,4 @@ Scenario: <one-sentence behavior>
 
 ## Backend-specific?
 
-<!-- If yes, which: GitHub / Azure DevOps / Jira / all -->
+<!-- If yes, which: GitHub / Azure DevOps / Jira / Linear / GitLab / all -->

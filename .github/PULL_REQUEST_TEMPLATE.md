@@ -34,6 +34,8 @@ Thanks for the PR. A few quick checks before you hit submit:
 - [ ] GitHub
 - [ ] Azure DevOps
 - [ ] Jira
+- [ ] Linear
+- [ ] GitLab
 - [ ] N/A — non-backend change
 
 ## Screenshots / output

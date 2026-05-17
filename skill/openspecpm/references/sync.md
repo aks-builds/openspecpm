@@ -1,6 +1,6 @@
 # Sync — Pushing an OpenSpec change to the PM tool
 
-**When to use this:** The user has a proposal + tasks ready and wants them tracked in GitHub Issues / Azure DevOps Boards / Jira.
+**When to use this:** The user has a proposal + tasks ready and wants them tracked in GitHub Issues / Azure DevOps Boards / Jira / Linear / GitLab Issues.
 
 ## Outcome
 
@@ -30,19 +30,22 @@ This means: if the network fails halfway through a 30-task sync, fix the cause, 
 Each adapter reports `capabilities()`. The sync layer reads `hierarchyDepth`:
 
 - **GitHub (depth 2):** Epic issue + flat task sub-issues. If the task tree authored depth >2, intermediate levels are flattened into siblings tagged `openspec:<feature>` and a one-line warning is printed.
+- **Linear (depth 2):** Project as epic, issues as tasks under the project. `parent` relation when supported by the workspace.
+- **GitLab (depth 2):** Parent issue + child issues linked via `relates_to` / `blocks`. Milestone serves as the epic container if `--milestone` is supplied.
 - **Jira (depth 3):** Epic → Story → optional Sub-task. Stories without sub-tasks just sit under the Epic via `Relates` link.
 - **Azure DevOps (depth 4):** Epic → Feature → User Story → Task with `System.LinkTypes.Hierarchy-Reverse` Parent links.
 
 ## Field mapping per adapter
 
-| OpenSpec field | GitHub | Azure DevOps | Jira |
-|---|---|---|---|
-| `task.title` | Issue title | `System.Title` | `summary` |
-| `task.body` | Issue body (markdown) | `System.Description` (HTML) | `description` (ADF) |
-| `feature.name` (tag) | label `openspec:<name>` | tag `openspec:<name>` | label `openspec-<name>` |
-| `task.depends_on` | task-list reference in body | `System.LinkTypes.Dependency` link | `Blocks` issue link |
-| `task.iteration` | (ignored, depth=2) | `System.IterationPath` | sprint custom field |
-| `task.assignee` | `--add-assignee` | `System.AssignedTo` | `assignee.accountId` |
+| OpenSpec field | GitHub | Azure DevOps | Jira | Linear | GitLab |
+|---|---|---|---|---|---|
+| `task.title` | Issue title | `System.Title` | `summary` | `title` | `title` |
+| `task.body` | Issue body (markdown) | `System.Description` (HTML) | `description` (ADF) | `description` (markdown) | `description` (markdown) |
+| `feature.name` (tag) | label `openspec:<name>` | tag `openspec:<name>` | label `openspec-<name>` | label `openspec:<name>` | label `openspec:<name>` |
+| `task.depends_on` | task-list reference in body | `System.LinkTypes.Dependency` link | `Blocks` issue link | issue relation `blocks` | issue link `blocks` |
+| `task.iteration` | (ignored, depth=2) | `System.IterationPath` | sprint custom field | `cycleId` | `milestone` |
+| `task.assignee` | `--add-assignee` | `System.AssignedTo` | `assignee.accountId` | `assigneeId` | `assignee_ids` |
+| `task.effort_hours` | (ignored) | `Microsoft.VSTS.Scheduling.Effort` | story-points custom field | `estimate` | `weight` |
 
 The CLI handles the translation. Author tasks in the OpenSpec/CCPM dialect described in `conventions.md`.
 
