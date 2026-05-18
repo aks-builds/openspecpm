@@ -211,6 +211,17 @@ export class AzureAdapter extends Adapter {
 
   async listWorkItems(query = {}) {
     const tag = query.tag ?? `openspec`;
+    // Defense in depth: WIQL string-literal syntax means `'` is the only
+    // breakout char and we already double it. But there's no known WIQL
+    // feature that escapes a literal via other chars, so reject anything
+    // outside a known-safe set rather than trust escaping alone. Tags in
+    // this codebase are always `openspec` or `openspec:<feature>`; the
+    // feature side is validated by openspec-bridge.assertSafeFeatureName.
+    if (!/^[a-zA-Z0-9._:-]+$/.test(String(tag))) {
+      throw new AdapterError(`Unsafe tag for WIQL: "${tag}".`, {
+        remediation: 'Tag must match /^[a-zA-Z0-9._:-]+$/. Use a plain slug.',
+      });
+    }
     const wiql = `SELECT [System.Id], [System.Title], [System.State], [System.Tags], [System.AssignedTo] FROM workitems WHERE [System.TeamProject] = @project AND [System.Tags] CONTAINS '${tag.replace(/'/g, "''")}' ORDER BY [System.Id] DESC`;
     const path = `/${encodeURIComponent(this.#project())}/_apis/wit/wiql`;
     const res = await this.#req('POST', path, {
