@@ -31,6 +31,7 @@ const SECTIONS = [
       ['blocked', 'Tasks waiting on unmet deps'],
       ['validate', 'Schema + dependency + BDD-lint sweep across every change'],
       ['search <query>', 'Grep across changes, specs, progress notes'],
+      ['watch [feature]', 'Debounced fs.watch over openspec/changes/; re-lint on save'],
     ],
   },
   {
