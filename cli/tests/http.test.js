@@ -42,6 +42,25 @@ test('network error is wrapped', async () => {
   await assert.rejects(c.request('GET', '/v1/x'), /Network error/);
 });
 
+test('request rejects with TimeoutError when fetch hangs past timeoutMs', async () => {
+  // fetch that never resolves on its own, but rejects when the abort signal fires.
+  const fetchImpl = (url, init) => new Promise((_, reject) => {
+    init.signal?.addEventListener('abort', () => {
+      const e = new Error('aborted');
+      e.name = 'AbortError';
+      reject(e);
+    });
+  });
+  const c = new HttpClient({ baseUrl: 'https://example.test', fetch: fetchImpl, timeoutMs: 50 });
+  const t0 = Date.now();
+  await assert.rejects(c.request('GET', '/v1/slow'), (err) => {
+    assert.match(err.message, /timed out after 50ms/);
+    assert.match(err.remediation, /timeoutMs/);
+    return true;
+  });
+  assert.ok(Date.now() - t0 < 500, 'rejection should happen within ~timeoutMs, not wall-clock max');
+});
+
 test('body JSON-serializes when object', async () => {
   let captured;
   const fetchImpl = async (url, init) => {
