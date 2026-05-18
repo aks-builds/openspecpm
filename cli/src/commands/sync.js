@@ -132,6 +132,16 @@ export async function runSync({ feature, dryRun = false, force = false, diff = f
     const patched = fm.serialize({ ...tdata, items: updatedItems }, tbody);
     await writeFile(tasksPath, patched, 'utf8');
   }
+
+  // Exit with a non-zero status if any task failed, so CI invocations like
+  // `openspecpm sync feature && deploy` don't proceed on silent partial sync.
+  // The tasks.md patch above already persisted last_error per failed task.
+  const failed = updatedItems.filter((t) => t.sync_state === 'failed');
+  if (failed.length) {
+    const err = new Error(`${failed.length} task(s) failed to sync in "${feature}".`);
+    err.remediation = 'Inspect last_error in tasks.md frontmatter and re-run sync to retry only failed items.';
+    throw err;
+  }
 }
 
 function out(s) {
