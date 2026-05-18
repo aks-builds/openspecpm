@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-05-18
+
 ### Security hardening — pass through audit findings
 
 Eleven commits addressing every HIGH / MEDIUM / LOW-with-security-impact finding from the v1.0.0 quality audit. 113/113 tests; +14 new regression tests across the touched surfaces.
