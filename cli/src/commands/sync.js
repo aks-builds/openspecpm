@@ -7,6 +7,7 @@ import { changeDir, changeExists } from '../openspec-bridge.js';
 import { lintChange, summarize, formatFindings } from '../bdd/linter.js';
 import { judgeChange, defaultClient, DEFAULT_MODEL } from '../bdd/judge.js';
 import * as fm from '../frontmatter.js';
+import { coerceItems, safeParseFrontmatter } from '../tracking.js';
 import { record } from '../audit.js';
 
 export async function runSync({ feature, dryRun = false, force = false, diff = false, llm = false } = {}) {
@@ -102,9 +103,11 @@ export async function runSync({ feature, dryRun = false, force = false, diff = f
     out('No tasks.md found — only the epic was synced.');
     return;
   }
-  const tasksRaw = await readFile(tasksPath, 'utf8');
-  const { data: tdata, body: tbody } = fm.parse(tasksRaw);
-  const items = tdata.items ?? parseChecklist(tbody);
+  // Route through the same parse+coerce helpers loadChange uses, so a
+  // non-array items: (or malformed YAML) is rejected here too — sync is the
+  // primary command and bypassing the validator was the H3 regression.
+  const { data: tdata, body: tbody } = await safeParseFrontmatter(tasksPath, feature, 'tasks.md');
+  const items = coerceItems(tdata.items, tbody, feature);
   const updatedItems = [];
 
   for (const task of items) {

@@ -49,7 +49,7 @@ export async function loadChange(name, cwd = process.cwd()) {
   return { name, dir, proposal, items, mtime };
 }
 
-async function safeParseFrontmatter(path, changeName, fileLabel) {
+export async function safeParseFrontmatter(path, changeName, fileLabel) {
   const raw = await readFile(path, 'utf8');
   try {
     return fm.parse(raw);
@@ -60,7 +60,7 @@ async function safeParseFrontmatter(path, changeName, fileLabel) {
   }
 }
 
-function coerceItems(rawItems, body, changeName) {
+export function coerceItems(rawItems, body, changeName) {
   if (rawItems === undefined || rawItems === null) {
     // No items: in frontmatter — fall back to the checklist body parser.
     return parseChecklist(body);
