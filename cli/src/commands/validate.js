@@ -1,11 +1,10 @@
-import { existsSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { listChanges } from '../tracking.js';
 import { lintChange, summarize } from '../bdd/linter.js';
 import { judgeChange, defaultClient, DEFAULT_MODEL } from '../bdd/judge.js';
 import { readConfig } from '../config.js';
 import { record } from '../audit.js';
+import { safeReadFile } from '../io.js';
 
 const REQUIRED_PROPOSAL = ['name'];
 const TASK_STATES = ['pending', 'created', 'failed'];
@@ -63,7 +62,7 @@ export async function runValidate({ llm = false } = {}) {
     if (judgeEnabled && client) {
       try {
         const proposalPath = join(change.dir, 'proposal.md');
-        const proposal = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
+        const proposal = (await safeReadFile(proposalPath)) ?? '';
         const judgeFindings = await judgeChange(change.dir, {
           client,
           model,

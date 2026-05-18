@@ -1,10 +1,10 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { readConfig } from '../config.js';
 import { loadAdapter } from '../adapters/index.js';
 import { loadChange } from '../tracking.js';
 import { changeDir, changeExists } from '../openspec-bridge.js';
+import { safeReadFile } from '../io.js';
 
 export async function runComment({ feature, task: taskRef, message, dryRun = false } = {}) {
   if (!feature) throw new Error('feature name is required');
@@ -59,8 +59,8 @@ async function resolveBody({ message, feature, taskRef, taskTitle }) {
   if (message) return message;
   const slug = slugify(taskRef === taskTitle ? taskTitle : taskRef);
   const progressPath = join(changeDir(feature), 'updates', slug, 'progress.md');
-  if (existsSync(progressPath)) {
-    const raw = await readFile(progressPath, 'utf8');
+  const raw = await safeReadFile(progressPath);
+  if (raw !== null) {
     return raw.trim() || `(progress.md is empty)`;
   }
   const err = new Error('No --message provided and no local progress.md to post.');
@@ -73,7 +73,7 @@ async function appendLocalProgress(feature, taskRef, body) {
   const dir = join(changeDir(feature), 'updates', slug);
   await mkdir(dir, { recursive: true });
   const file = join(dir, 'progress.md');
-  const existing = existsSync(file) ? await readFile(file, 'utf8') : '';
+  const existing = (await safeReadFile(file)) ?? '';
   const sep = existing && !existing.endsWith('\n') ? '\n\n' : '\n';
   await writeFile(file, existing + sep + body + '\n', 'utf8');
 }

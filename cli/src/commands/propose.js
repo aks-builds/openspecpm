@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { propose, changeExists, changeDir, OpenSpecError } from '../openspec-bridge.js';
@@ -7,6 +7,7 @@ import { judgeChange, defaultClient, DEFAULT_MODEL } from '../bdd/judge.js';
 import { CHANGE_TYPES, proposalTemplate, specsTemplate, STARTER_TASKS } from '../bdd/templates.js';
 import { readConfig } from '../config.js';
 import { record } from '../audit.js';
+import { safeReadFile } from '../io.js';
 
 export async function runPropose({ feature, prompt, type = 'feature', offline = false, llm = false } = {}) {
   if (!feature) throw new Error('feature name is required');
@@ -85,7 +86,7 @@ async function runJudgeSoft(dir, feature) {
     const cfg = await readConfig();
     const model = cfg?.judge?.model ?? DEFAULT_MODEL;
     const proposalPath = join(dir, 'proposal.md');
-    const proposal = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
+    const proposal = (await safeReadFile(proposalPath)) ?? '';
     const client = await defaultClient();
     return await judgeChange(dir, {
       client,

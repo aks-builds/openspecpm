@@ -9,6 +9,7 @@ import { judgeChange, defaultClient, DEFAULT_MODEL } from '../bdd/judge.js';
 import * as fm from '../frontmatter.js';
 import { coerceItems, safeParseFrontmatter } from '../tracking.js';
 import { record } from '../audit.js';
+import { safeReadFile } from '../io.js';
 
 export async function runSync({ feature, dryRun = false, force = false, diff = false, llm = false } = {}) {
   if (!feature) throw new Error('feature name is required');
@@ -30,7 +31,7 @@ export async function runSync({ feature, dryRun = false, force = false, diff = f
     try {
       const model = config?.judge?.model ?? DEFAULT_MODEL;
       const proposalPath = join(dir, 'proposal.md');
-      const proposalForJudge = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
+      const proposalForJudge = (await safeReadFile(proposalPath)) ?? '';
       const client = await defaultClient();
       const judgeFindings = await judgeChange(dir, {
         client,
@@ -72,7 +73,7 @@ export async function runSync({ feature, dryRun = false, force = false, diff = f
   }
 
   const proposalPath = join(dir, 'proposal.md');
-  const proposalRaw = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
+  const proposalRaw = (await safeReadFile(proposalPath)) ?? '';
   const { data: pdata } = fm.parse(proposalRaw);
 
   // Idempotency: re-use existing epic ref if present.

@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { changeDir, changeExists } from '../openspec-bridge.js';
 import { parseScenarios } from '../bdd/linter.js';
 import * as fm from '../frontmatter.js';
+import { safeReadFile } from '../io.js';
 
 export async function runDecompose({ feature, force = false } = {}) {
   if (!feature) throw new Error('feature name is required');
@@ -18,9 +19,9 @@ export async function runDecompose({ feature, force = false } = {}) {
   const tasksPath = join(dir, 'tasks.md');
 
   let existingItems = [];
-  if (existsSync(tasksPath)) {
-    const raw = await readFile(tasksPath, 'utf8');
-    const { data } = fm.parse(raw);
+  const tasksRaw = await safeReadFile(tasksPath);
+  if (tasksRaw !== null) {
+    const { data } = fm.parse(tasksRaw);
     existingItems = data.items ?? [];
     if (existingItems.length && !force) {
       process.stdout.write(`tasks.md already has ${existingItems.length} item(s). Pass --force to merge.\n`);
@@ -28,7 +29,7 @@ export async function runDecompose({ feature, force = false } = {}) {
     }
   }
 
-  const proposal = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
+  const proposal = (await safeReadFile(proposalPath)) ?? '';
   const specsItems = await extractFromSpecs(dir);
   const proposalItems = extractFromProposal(proposal);
   const merged = dedupe([...existingItems, ...proposalItems, ...specsItems]);
