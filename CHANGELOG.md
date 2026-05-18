@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-05-18
+
 ### v2 — automated release pipeline
 
 - **`.github/workflows/release.yml`**: manually-dispatched release-preparation workflow. Click "Run workflow", pick a bump (`prerelease` / `patch` / `minor` / `major`), and the pipeline runs the test suite, bumps `package.json`, rolls `CHANGELOG.md` (`[Unreleased]` → `[X.Y.Z] - DATE`), opens a PR on a `release/vX.Y.Z` branch, and enables squash auto-merge. No direct push to `main`.
