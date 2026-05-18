@@ -1,13 +1,16 @@
 import { AdapterError } from './adapters/base.js';
 
+const DEFAULT_TIMEOUT_MS = 30_000;
+
 export class HttpClient {
   #baseUrl;
   #authHeader;
   #fetchImpl;
   #defaultHeaders;
   #remediationHint;
+  #timeoutMs;
 
-  constructor({ baseUrl, auth, fetch: fetchImpl = globalThis.fetch, defaultHeaders = {}, remediationHint } = {}) {
+  constructor({ baseUrl, auth, fetch: fetchImpl = globalThis.fetch, defaultHeaders = {}, remediationHint, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
     if (!baseUrl) throw new Error('HttpClient requires baseUrl');
     if (typeof fetchImpl !== 'function') throw new Error('global fetch not available; pass {fetch} explicitly');
     this.#baseUrl = baseUrl.replace(/\/+$/, '');
@@ -15,6 +18,7 @@ export class HttpClient {
     this.#fetchImpl = fetchImpl;
     this.#defaultHeaders = defaultHeaders;
     this.#remediationHint = remediationHint;
+    this.#timeoutMs = timeoutMs;
   }
 
   async request(method, path, { query, body, headers, contentType = 'application/json', accept = 'application/json' } = {}) {
@@ -35,10 +39,18 @@ export class HttpClient {
       finalHeaders['Content-Type'] = contentType;
     }
 
+    // Bound the request with an abort signal so a hung backend can't wedge sync --all.
+    const signal = AbortSignal.timeout(this.#timeoutMs);
     let res;
     try {
-      res = await this.#fetchImpl(url, { method, headers: finalHeaders, body: payload });
+      res = await this.#fetchImpl(url, { method, headers: finalHeaders, body: payload, signal });
     } catch (err) {
+      if (err?.name === 'TimeoutError' || err?.name === 'AbortError') {
+        throw new AdapterError(`${method} ${url} timed out after ${this.#timeoutMs}ms`, {
+          remediation: 'Backend did not respond in time. Retry, or raise HttpClient timeoutMs if the endpoint is known-slow.',
+          cause: err,
+        });
+      }
       throw new AdapterError(`Network error calling ${method} ${url}: ${err.message}`, {
         remediation: this.#remediationHint ?? 'Check connectivity and base URL.',
         cause: err,

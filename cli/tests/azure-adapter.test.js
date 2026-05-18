@@ -146,3 +146,15 @@ test('listWorkItems queries WIQL then fetches batch', withPat(async () => {
   assert.equal(items[0].status, 'open');
   assert.equal(items[1].status, 'in_progress');
 }));
+
+test('getWorkItem encodes user-controlled id so path-traversal IDs cannot escape', withPat(async () => {
+  const fetchImpl = mockFetch([
+    [() => true, { body: { id: 1, fields: { 'System.Title': 'X', 'System.State': 'New' }, _links: { html: { href: 'h' } } } }],
+  ]);
+  const a = new AzureAdapter(baseConfig, { fetch: fetchImpl });
+  // A malicious task.external_id from a hand-edited tasks.md.
+  await a.getWorkItem({ id: '1/../99' });
+  const url = fetchImpl.calls[0].url;
+  assert.ok(url.includes('1%2F..%2F99'), `expected encoded id in ${url}`);
+  assert.ok(!url.includes('1/../99'), `raw traversal must not appear in ${url}`);
+}));

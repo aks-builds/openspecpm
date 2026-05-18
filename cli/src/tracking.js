@@ -36,18 +36,43 @@ export async function loadChange(name, cwd = process.cwd()) {
   let proposal = {};
   const proposalPath = join(dir, 'proposal.md');
   if (existsSync(proposalPath)) {
-    const raw = await readFile(proposalPath, 'utf8');
-    proposal = fm.parse(raw).data ?? {};
+    const parsed = await safeParseFrontmatter(proposalPath, name, 'proposal.md');
+    proposal = parsed.data ?? {};
   }
   let items = [];
   const tasksPath = join(dir, 'tasks.md');
   if (existsSync(tasksPath)) {
-    const raw = await readFile(tasksPath, 'utf8');
-    const { data, body } = fm.parse(raw);
-    items = data.items ?? parseChecklist(body);
+    const { data, body } = await safeParseFrontmatter(tasksPath, name, 'tasks.md');
+    items = coerceItems(data.items, body, name);
   }
   const mtime = await mostRecentMtime(dir);
   return { name, dir, proposal, items, mtime };
+}
+
+export async function safeParseFrontmatter(path, changeName, fileLabel) {
+  const raw = await readFile(path, 'utf8');
+  try {
+    return fm.parse(raw);
+  } catch (err) {
+    const e = new Error(`${changeName}/${fileLabel}: YAML frontmatter is malformed (${err.message?.split('\n')[0] ?? err.name}).`);
+    e.remediation = `Repair the YAML in openspec/changes/${changeName}/${fileLabel}. Validate with \`openspecpm validate\` after fixing.`;
+    throw e;
+  }
+}
+
+export function coerceItems(rawItems, body, changeName) {
+  if (rawItems === undefined || rawItems === null) {
+    // No items: in frontmatter — fall back to the checklist body parser.
+    return parseChecklist(body);
+  }
+  if (!Array.isArray(rawItems)) {
+    const e = new Error(`${changeName}/tasks.md: frontmatter "items:" must be a YAML array, got ${Array.isArray(rawItems) ? 'array' : typeof rawItems}.`);
+    e.remediation = `Edit openspec/changes/${changeName}/tasks.md so "items:" is a list (each entry starts with "- title: ...").`;
+    throw e;
+  }
+  // Filter out malformed entries (silently skipping is better than crashing
+  // deep in a downstream consumer with `TypeError: items is not iterable`).
+  return rawItems.filter((t) => t && typeof t === 'object' && typeof t.title === 'string');
 }
 
 /**

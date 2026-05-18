@@ -4,6 +4,7 @@ import { readConfig } from '../config.js';
 import { loadAdapter } from '../adapters/index.js';
 import { changeDir, changeExists } from '../openspec-bridge.js';
 import * as fm from '../frontmatter.js';
+import { coerceItems, safeParseFrontmatter } from '../tracking.js';
 
 export async function runReconcile({ feature, dryRun = false } = {}) {
   if (!feature) throw new Error('feature name is required');
@@ -17,10 +18,22 @@ export async function runReconcile({ feature, dryRun = false } = {}) {
 
   const dir = changeDir(feature);
   const tasksPath = join(dir, 'tasks.md');
-  let tasksRaw = '';
-  try { tasksRaw = await readFile(tasksPath, 'utf8'); } catch { /* missing */ }
-  const { data: tdata, body: tbody } = fm.parse(tasksRaw);
-  const items = tdata.items ?? [];
+  // Read + validate through the same helpers loadChange uses, so a non-array
+  // items: (or malformed YAML) raises a clear error instead of iterating
+  // character-by-character.
+  let tdata = {};
+  let tbody = '';
+  try {
+    ({ data: tdata, body: tbody } = await safeParseFrontmatter(tasksPath, feature, 'tasks.md'));
+  } catch (err) {
+    if (err.code === 'ENOENT' || /no such file/i.test(err.message)) {
+      // tasks.md missing — nothing to reconcile.
+      process.stdout.write('No items in tasks.md to reconcile.\n');
+      return;
+    }
+    throw err;
+  }
+  const items = coerceItems(tdata.items, tbody, feature);
   if (!items.length) {
     process.stdout.write('No items in tasks.md to reconcile.\n');
     return;

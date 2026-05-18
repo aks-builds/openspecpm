@@ -37,6 +37,45 @@ test('record scrubs token-like keys', async () => {
   });
 });
 
+test('scrubber redacts webhook URLs from string values (M11)', async () => {
+  await withTmp(async (dir) => {
+    await record({
+      command: 'standup',
+      args: { since: '24h' },
+      // Result string accidentally contains a Slack webhook URL — must redact.
+      result: 'fetch failed: https://hooks.slack.com/services/T0/B0/abc123secret then continued',
+      cwd: dir,
+    });
+    const [entry] = await tail(1, dir);
+    assert.ok(!entry.result.includes('hooks.slack.com'), `webhook URL leaked: ${entry.result}`);
+    assert.match(entry.result, /<redacted-webhook>/);
+    assert.match(entry.result, /then continued/);
+  });
+});
+
+test('scrubber catches extended segment keys (M6/LOW-4)', async () => {
+  await withTmp(async (dir) => {
+    await record({
+      command: 'x',
+      args: {
+        cookie: 'sid=abc',
+        session_id: 'xyz',
+        bearer_token: 't',
+        webhook_url: 'https://anything',
+        hmac_signature: 's',
+        saml_assertion: 'a',
+        plain: 'keep me',
+      },
+      cwd: dir,
+    });
+    const [entry] = await tail(1, dir);
+    for (const k of ['cookie', 'session_id', 'bearer_token', 'webhook_url', 'hmac_signature', 'saml_assertion']) {
+      assert.equal(entry.args[k], '<redacted>', `${k} should be redacted`);
+    }
+    assert.equal(entry.args.plain, 'keep me');
+  });
+});
+
 test('record persists meta when provided', async () => {
   await withTmp(async (dir) => {
     await record({

@@ -51,3 +51,26 @@ test('doctor reports missing gh CLI', async () => {
   assert.equal(findings[0].ok, false);
   assert.match(findings[0].msg, /not installed/);
 });
+
+test('createWorkItem passes leading-dash titles as discrete argv items (no flag-injection)', async () => {
+  // Regression for the M3 finding: a task title that starts with `-` (or `--`)
+  // must reach gh as a SINGLE argv element following --title, never tokenized.
+  // execa with array args + no shell already guarantees this; this test locks
+  // the behavior so a future refactor (e.g., switching to a shell-quoted form)
+  // would fail loudly.
+  const runner = recordingRunner();
+  runner.respond(
+    'gh issue create --repo a/b --title --evil-flag --body x --label openspec-task,openspec:f',
+    { stdout: 'https://github.com/a/b/issues/7\n' },
+  );
+  const a = new GitHubAdapter({ repo: 'a/b' }, { runner });
+  await a.createWorkItem({ id: '1', feature: 'f' }, { title: '--evil-flag', body: 'x' });
+  const argv = runner.calls[0].args;
+  const titleIdx = argv.indexOf('--title');
+  assert.ok(titleIdx >= 0, 'must pass --title');
+  // The value following --title is the literal user-supplied string, kept as
+  // its own argv element. gh's cobra parser consumes exactly one next arg as
+  // the flag value, so even a value starting with `--` is the title, not a
+  // new flag.
+  assert.equal(argv[titleIdx + 1], '--evil-flag');
+});

@@ -42,6 +42,41 @@ test('network error is wrapped', async () => {
   await assert.rejects(c.request('GET', '/v1/x'), /Network error/);
 });
 
+test('request rejects with TimeoutError when fetch hangs past timeoutMs', async () => {
+  // fetch that never resolves on its own, but rejects when the abort signal fires.
+  // AbortSignal.timeout in Node 20+ uses an unref'd internal timer — meaning it
+  // does NOT keep the event loop alive. In production this is fine because
+  // fetch's socket is ref'd. In this test the mock fetch has nothing ref'd, so
+  // we install a small ref'd backup timer to keep the loop alive past the 50ms
+  // timeout. The backup is cleared when the abort listener fires (the normal
+  // path) and only rejects on its own if the abort never arrives (1s safety).
+  const fetchImpl = (url, init) => new Promise((_, reject) => {
+    const backup = setTimeout(() => reject(new Error('backup timer: abort never fired')), 1000);
+    const sig = init.signal;
+    if (sig?.aborted) {
+      clearTimeout(backup);
+      const e = new Error('aborted');
+      e.name = 'AbortError';
+      reject(e);
+      return;
+    }
+    sig?.addEventListener('abort', () => {
+      clearTimeout(backup);
+      const e = new Error('aborted');
+      e.name = 'AbortError';
+      reject(e);
+    });
+  });
+  const c = new HttpClient({ baseUrl: 'https://example.test', fetch: fetchImpl, timeoutMs: 50 });
+  const t0 = Date.now();
+  await assert.rejects(c.request('GET', '/v1/slow'), (err) => {
+    assert.match(err.message, /timed out after 50ms/);
+    assert.match(err.remediation, /timeoutMs/);
+    return true;
+  });
+  assert.ok(Date.now() - t0 < 500, 'rejection should happen within ~timeoutMs, not wall-clock max');
+});
+
 test('body JSON-serializes when object', async () => {
   let captured;
   const fetchImpl = async (url, init) => {

@@ -2,6 +2,11 @@ import { Adapter, AdapterError } from './base.js';
 import { HttpClient, basicAuth } from '../http.js';
 import { TokenBucket, PRESETS } from '../ratelimit.js';
 
+// User-controlled ids (from tasks.md frontmatter) MUST be encoded before
+// interpolation into URL paths or body URL values, or a value like
+// "1/../99" can reach unintended endpoints.
+const enc = (v) => encodeURIComponent(String(v));
+
 const API_VERSION = '7.1';
 const COMMENTS_API_VERSION = '7.1-preview.3';
 
@@ -151,11 +156,11 @@ export class AzureAdapter extends Adapter {
         path: '/relations/-',
         value: {
           rel: 'System.LinkTypes.Hierarchy-Reverse',
-          url: `${this.config.baseUrl ?? `https://dev.azure.com/${this.config.organization}`}/_apis/wit/workItems/${parent.id}`,
+          url: `${this.config.baseUrl ?? `https://dev.azure.com/${this.config.organization}`}/_apis/wit/workItems/${enc(parent.id)}`,
         },
       },
     ];
-    const path = `/${encodeURIComponent(this.#project())}/_apis/wit/workitems/${child.id}`;
+    const path = `/${encodeURIComponent(this.#project())}/_apis/wit/workitems/${enc(child.id)}`;
     await this.#req('PATCH', path, {
       query: { 'api-version': API_VERSION },
       body: ops,
@@ -164,7 +169,7 @@ export class AzureAdapter extends Adapter {
   }
 
   async addProgressComment(item, body) {
-    const path = `/${encodeURIComponent(this.#project())}/_apis/wit/workItems/${item.id}/comments`;
+    const path = `/${encodeURIComponent(this.#project())}/_apis/wit/workItems/${enc(item.id)}/comments`;
     await this.#req('POST', path, {
       query: { 'api-version': COMMENTS_API_VERSION },
       body: { text: body },
@@ -179,7 +184,7 @@ export class AzureAdapter extends Adapter {
     if (patch.iterationPath) ops.push({ op: 'add', path: '/fields/System.IterationPath', value: patch.iterationPath });
     if (patch.areaPath) ops.push({ op: 'add', path: '/fields/System.AreaPath', value: patch.areaPath });
     if (!ops.length) return;
-    const path = `/${encodeURIComponent(this.#project())}/_apis/wit/workitems/${item.id}`;
+    const path = `/${encodeURIComponent(this.#project())}/_apis/wit/workitems/${enc(item.id)}`;
     await this.#req('PATCH', path, {
       query: { 'api-version': API_VERSION },
       body: ops,
@@ -193,7 +198,7 @@ export class AzureAdapter extends Adapter {
   }
 
   async getWorkItem(item) {
-    const path = `/${encodeURIComponent(this.#project())}/_apis/wit/workitems/${item.id}`;
+    const path = `/${encodeURIComponent(this.#project())}/_apis/wit/workitems/${enc(item.id)}`;
     const data = await this.#req('GET', path, { query: { 'api-version': API_VERSION } });
     return {
       ref: { adapter: 'azure', id: String(data.id), url: data._links?.html?.href },
@@ -206,6 +211,17 @@ export class AzureAdapter extends Adapter {
 
   async listWorkItems(query = {}) {
     const tag = query.tag ?? `openspec`;
+    // Defense in depth: WIQL string-literal syntax means `'` is the only
+    // breakout char and we already double it. But there's no known WIQL
+    // feature that escapes a literal via other chars, so reject anything
+    // outside a known-safe set rather than trust escaping alone. Tags in
+    // this codebase are always `openspec` or `openspec:<feature>`; the
+    // feature side is validated by openspec-bridge.assertSafeFeatureName.
+    if (!/^[a-zA-Z0-9._:-]+$/.test(String(tag))) {
+      throw new AdapterError(`Unsafe tag for WIQL: "${tag}".`, {
+        remediation: 'Tag must match /^[a-zA-Z0-9._:-]+$/. Use a plain slug.',
+      });
+    }
     const wiql = `SELECT [System.Id], [System.Title], [System.State], [System.Tags], [System.AssignedTo] FROM workitems WHERE [System.TeamProject] = @project AND [System.Tags] CONTAINS '${tag.replace(/'/g, "''")}' ORDER BY [System.Id] DESC`;
     const path = `/${encodeURIComponent(this.#project())}/_apis/wit/wiql`;
     const res = await this.#req('POST', path, {

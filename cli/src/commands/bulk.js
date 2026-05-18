@@ -31,6 +31,11 @@ export async function runSyncAll({ dryRun = false, force = false, yes = false } 
     }
   }
   process.stdout.write(`\nSummary: ${synced} synced, ${failed} failed.\n`);
+  if (failed > 0) {
+    const err = new Error(`${failed} change(s) failed to sync.`);
+    err.remediation = 'See per-change errors above; re-run for affected features after fixing.';
+    throw err;
+  }
 }
 
 export async function runShipAllReady({ yes = false, skipArchive = false } = {}) {
@@ -64,4 +69,9 @@ export async function runShipAllReady({ yes = false, skipArchive = false } = {})
     }
   }
   process.stdout.write(`\nSummary: ${shipped} shipped, ${failed} failed.\n`);
+  if (failed > 0) {
+    const err = new Error(`${failed} change(s) failed to ship.`);
+    err.remediation = 'See per-change errors above; re-run for affected features after fixing.';
+    throw err;
+  }
 }

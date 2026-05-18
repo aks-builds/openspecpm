@@ -198,10 +198,21 @@ program
   .description('Context-aware help grouped by workflow phase')
   .action((topic) => { runHelp({ topic }); });
 
+// Sanitize uncaught errors so a future programming bug (TypeError, etc.)
+// doesn't dump a stack trace with absolute install / tmp paths to stderr.
+// fatal() is the normal path; these handlers are insurance for code paths
+// that don't reach Commander's .catch(fatal).
+process.on('uncaughtException', fatal);
+process.on('unhandledRejection', (reason) => {
+  fatal(reason instanceof Error ? reason : new Error(String(reason ?? 'unknown')));
+});
+
 program.parseAsync(process.argv);
 
 function fatal(err) {
-  process.stderr.write(`\n✖ ${err.message}\n`);
-  if (err.remediation) process.stderr.write(`  → ${err.remediation}\n`);
+  const msg = err?.message ?? String(err ?? 'unknown error');
+  process.stderr.write(`\n✖ ${msg}\n`);
+  if (err?.remediation) process.stderr.write(`  → ${err.remediation}\n`);
+  process.stderr.write(`  See .openspecpm/audit.log for details.\n`);
   process.exit(1);
 }
