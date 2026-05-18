@@ -5,9 +5,11 @@ import { readConfig } from '../config.js';
 import { loadAdapter } from '../adapters/index.js';
 import { changeDir, changeExists } from '../openspec-bridge.js';
 import { lintChange, summarize, formatFindings } from '../bdd/linter.js';
+import { judgeChange, defaultClient, DEFAULT_MODEL } from '../bdd/judge.js';
 import * as fm from '../frontmatter.js';
+import { record } from '../audit.js';
 
-export async function runSync({ feature, dryRun = false, force = false, diff = false } = {}) {
+export async function runSync({ feature, dryRun = false, force = false, diff = false, llm = false } = {}) {
   if (!feature) throw new Error('feature name is required');
   const config = await readConfig();
   if (!config) {
@@ -23,6 +25,30 @@ export async function runSync({ feature, dryRun = false, force = false, diff = f
 
   const dir = changeDir(feature);
   const findings = await lintChange(dir);
+  if (llm || config?.judge?.enabled) {
+    try {
+      const model = config?.judge?.model ?? DEFAULT_MODEL;
+      const proposalPath = join(dir, 'proposal.md');
+      const proposalForJudge = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
+      const client = await defaultClient();
+      const judgeFindings = await judgeChange(dir, {
+        client,
+        model,
+        proposal: proposalForJudge,
+        onUsage: (u) => {
+          record({ command: 'judge', args: { feature }, meta: u }).catch(() => {});
+        },
+      });
+      findings.push(...judgeFindings);
+    } catch (err) {
+      if (!force) {
+        const e = new Error(`LLM judge failed: ${err.message}`);
+        e.remediation = 'Run `openspecpm doctor` to check ANTHROPIC_API_KEY, or pass --force to skip the LLM judge.';
+        throw e;
+      }
+      process.stdout.write(`  (LLM judge skipped under --force: ${err.message})\n`);
+    }
+  }
   const sum = summarize(findings);
   if (sum.errors > 0 && !force) {
     process.stderr.write(`BDD lint: ${sum.errors} errors, ${sum.warnings} warnings\n`);

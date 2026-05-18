@@ -2,9 +2,17 @@ name: Auto-approve
 
 # Calls the reusable workflow in aks-builds/workflows.
 # Approves only PRs opened by aks-builds; silently skips all others.
-# Required repo secrets (push them with workflows/scripts/distribute-secrets.ps1):
-#   APPROVER_APP_ID
-#   APPROVER_APP_PRIVATE_KEY
+#
+# The reusable workflow supports two independent approver paths. Configure
+# at least one — set both for two parallel approvals from distinct identities:
+#
+#   APPROVER_APP_ID + APPROVER_APP_PRIVATE_KEY  → approval posted by the bot App.
+#   APPROVER_PAT                                → approval posted by the user
+#                                                 who owns the PAT (typically
+#                                                 a secondary GitHub account).
+#
+# Push secrets with workflows/scripts/distribute-secrets.ps1 in
+# aks-builds/workflows.
 
 on:
   pull_request:

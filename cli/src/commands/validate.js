@@ -1,13 +1,21 @@
 import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { listChanges } from '../tracking.js';
 import { lintChange, summarize } from '../bdd/linter.js';
+import { judgeChange, defaultClient, DEFAULT_MODEL } from '../bdd/judge.js';
+import { readConfig } from '../config.js';
+import { record } from '../audit.js';
 
 const REQUIRED_PROPOSAL = ['name'];
 const TASK_STATES = ['pending', 'created', 'failed'];
 
-export async function runValidate() {
+export async function runValidate({ llm = false } = {}) {
   const changes = await listChanges();
+  const config = await readConfig();
+  const judgeEnabled = llm || Boolean(config?.judge?.enabled);
+  const model = config?.judge?.model ?? DEFAULT_MODEL;
+  const client = judgeEnabled ? await defaultClient().catch(() => null) : null;
   out(`openspecpm validate — ${changes.length} change(s)\n`);
   let totalIssues = 0;
 
@@ -52,6 +60,29 @@ export async function runValidate() {
 
     // BDD lint
     const findings = await lintChange(change.dir);
+    if (judgeEnabled && client) {
+      try {
+        const proposalPath = join(change.dir, 'proposal.md');
+        const proposal = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
+        const judgeFindings = await judgeChange(change.dir, {
+          client,
+          model,
+          proposal,
+          onUsage: (u) => {
+            record({ command: 'judge', args: { feature: change.name }, meta: u }).catch(() => {});
+          },
+        });
+        findings.push(...judgeFindings);
+      } catch (err) {
+        findings.push({
+          severity: 'warning',
+          file: change.dir,
+          scenario: '(judge failed)',
+          rule: 'bdd/llm-parse-error',
+          message: `LLM judge failed: ${err.message}`,
+        });
+      }
+    }
     const { errors, warnings } = summarize(findings);
 
     const total = issues.length + errors;

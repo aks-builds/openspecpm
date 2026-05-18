@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### v2 — automated release pipeline
+
+- **`.github/workflows/release.yml`**: manually-dispatched release-preparation workflow. Click "Run workflow", pick a bump (`prerelease` / `patch` / `minor` / `major`), and the pipeline runs the test suite, bumps `package.json`, rolls `CHANGELOG.md` (`[Unreleased]` → `[X.Y.Z] - DATE`), opens a PR on a `release/vX.Y.Z` branch, and enables squash auto-merge. No direct push to `main`.
+- **`.github/workflows/publish.yml`**: post-merge half of the pipeline. Fires when a `release/*` PR is merged into `main`. Reads the version from `package.json`, publishes to npm with sigstore provenance, syncs the `latest` dist-tag for pre-1.0 alpha releases, tags the merge commit, creates a GitHub release with the just-rolled changelog section as the body.
+- **`auto-approve.yml` reusable workflow** (at `aks-builds/workflows`): extended to support an optional `APPROVER_PAT` secret alongside the existing `APPROVER_APP_ID` + `APPROVER_APP_PRIVATE_KEY`. The PAT path runs as a second parallel job and posts a review under the PAT-owning user's identity — useful when branch protection requires multiple distinct approvers, or to keep a real human-account review in the audit trail alongside the bot. Either, both, or neither path can be configured per consuming repo; an unconfigured path runs cleanly and exits without posting a review. See `CONTRIBUTING.md` § Releasing for repo-secret setup.
+
+### v2 — LLM-backed BDD judge
+
+- **`cli/src/bdd/judge.js`**: opt-in LLM judge that augments the heuristic BDD linter. Behind `--llm` flag on `propose`, `sync`, `validate`, or `judge.enabled: true` in `.openspecpm/config.json`. Uses Claude Haiku 4.5 via `@anthropic-ai/sdk`, with `tool_use` for structured `report_findings` output and `cache_control: ephemeral` on the proposal system block so re-runs across multiple specs in one feature reuse the cache. Emits three new rule IDs: `bdd/llm-contradiction` (cross-spec contradictions), `bdd/llm-missing-coverage` (success criteria with no scenario), `bdd/llm-vague-then` (Then predicates that pass regex but state no observable outcome). Findings share the existing `LintFinding` shape so they merge with heuristic output via a single spread.
+- **`cli/src/commands/doctor.js`**: always-on `[judge]` section probes `ANTHROPIC_API_KEY` with English remediation hint, mirroring the per-adapter layout.
+- **`cli/src/audit.js`**: `record()` now accepts an optional `meta` field; the judge logs `{model, input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens}` per LLM call so cache hit rate is auditable from `.openspecpm/audit.log`.
+- **`sync --llm`**: judge runs alongside heuristic lint; LLM errors block sync unless `--force` overrides. Network/auth failures degrade with a remediation hint pointing at `doctor`.
+- **`propose --llm`**: judge runs as soft-lint only; never aborts proposal authoring on judge failure.
+- **`validate --llm`**: judge runs per change; failures degrade into `bdd/llm-parse-error` findings rather than aborting the sweep.
+- **`@anthropic-ai/sdk ^0.65.0`** added to `dependencies`. New `cli/tests/judge.test.js` covers the merged-findings shape, parse-error degradation, `onUsage` callback, parallel fan-out across specs, the cache_control invariant, and unknown-rule filtering — all against a plain stub client, zero real network calls.
+- **Doc sweep**: README command table flags `--llm` on `propose` / `sync` / `validate` rows; SKILL.md script-first table mirrors it; `references/conventions.md` lists `ANTHROPIC_API_KEY` under Secrets; `openspec/changes/bdd-llm-reviewer/tasks.md` items marked `sync_state: created`.
+
 ### Post-Sprint 6 — docs, CI, v2 planning
 
 - **v2 roadmap scaffolded as 6 OpenSpec changes** under `openspec/changes/` (dogfood: the tool plans itself with itself). Each change has a full proposal, dependency-aware tasks.md, and BDD scenarios. Roadmap index lives at `openspec/changes/README.md`. Features: `dependency-graph`, `bdd-llm-reviewer`, `spec-to-tests`, `traceability-export`, `additional-adapters` (Notion + ClickUp + Asana), `agent-orchestrator`.

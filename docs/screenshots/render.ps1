@@ -177,6 +177,52 @@ try {
         -Output (Invoke-Cli 'doctor') `
         -Path  'docs/screenshots/doctor.png'
 
+    # Capture propose + decompose against a one-shot dark-mode scratch.
+    # Setup-Fixtures below re-creates dark-mode with its own tasks fixture.
+    if (Test-Path 'openspec/changes/dark-mode') {
+        Remove-Item -Recurse -Force 'openspec/changes/dark-mode'
+    }
+    # Strip the absolute cwd prefix so the BDD lint line fits a normal screenshot width.
+    $proposeOut = (Invoke-Cli 'propose', 'dark-mode', '--offline') -replace [regex]::Escape((Get-Location).Path + '\'), ''
+    New-TerminalPng -Command 'openspecpm propose dark-mode --offline' `
+        -Output $proposeOut `
+        -Path  'docs/screenshots/propose.png'
+
+    # Curated synthetic output for the LLM judge. The real `propose --llm` makes a
+    # network call to api.anthropic.com (Claude Haiku 4.5) and requires
+    # ANTHROPIC_API_KEY, so it can't be captured deterministically alongside the
+    # other commands here. This canned example shows the three new rule ids
+    # (bdd/llm-contradiction, bdd/llm-missing-coverage, bdd/llm-vague-then)
+    # merged with heuristic findings, in the same format the real run produces.
+    # Use [char] codes for the linter sigils so the .ps1 source is encoding-safe.
+    $warn = [char]0x26A0
+    $err  = [char]0x2716
+    $hell = [char]0x2026
+    $judgeOut = @"
+Proposal created at openspec\changes\dark-mode.
+
+BDD lint (soft): 2 errors, 3 warnings
+  $warn openspec\changes\dark-mode\specs\main.md:8 [bdd/non-observable-then] Then `"the change feels right`" lacks an observable verb. Consider: displays, shows, returns, stores, persists, rejects, $hell
+  $err openspec\changes\dark-mode\specs\main.md:18 [bdd/llm-contradiction] `"User selects Dark in menu`" claims the system theme overrides the user choice, but scenario `"User opens app at night`" in night-mode.md:12 claims the user choice overrides the system theme. Specs disagree on precedence.
+  $err openspec\changes\dark-mode\specs\persistence.md:7 [bdd/llm-missing-coverage] Success criterion `"Honor prefers-color-scheme on first load`" has no scenario in specs/. Add one before sync.
+  $warn openspec\changes\dark-mode\specs\main.md:24 [bdd/llm-vague-then] Then `"the user is happy`" -- what does happy look like to a tester? Restate as an observable outcome (toast text, ARIA announcement, persisted state, etc.).
+  $warn openspec\changes\dark-mode\specs\main.md:30 [bdd/weak-when] When `"is happening`" should start with an action verb (clicks, submits, requests, $hell), not a state verb.
+These will block ``sync`` unless you pass --force. Refine scenarios before pushing.
+Next: review proposal.md + specs/, then run ``openspecpm sync dark-mode``.
+"@
+    New-TerminalPng -Command 'openspecpm propose dark-mode --llm' `
+        -Output $judgeOut `
+        -Path  'docs/screenshots/judge.png'
+
+    $decomposeOut = (Invoke-Cli 'decompose', 'dark-mode', '--force') -replace [regex]::Escape((Get-Location).Path + '\'), ''
+    New-TerminalPng -Command 'openspecpm decompose dark-mode --force' `
+        -Output $decomposeOut `
+        -Path  'docs/screenshots/decompose.png'
+
+    if (Test-Path 'openspec/changes/dark-mode') {
+        Remove-Item -Recurse -Force 'openspec/changes/dark-mode'
+    }
+
     # Populate sample state, then capture flow commands
     Setup-Fixtures
 
@@ -191,6 +237,14 @@ try {
     New-TerminalPng -Command 'openspecpm blocked' `
         -Output (Invoke-Cli 'blocked') `
         -Path  'docs/screenshots/blocked.png'
+
+    New-TerminalPng -Command 'openspecpm fan-out dark-mode -l 1' `
+        -Output (Invoke-Cli 'fan-out', 'dark-mode', '-l', '1') `
+        -Path  'docs/screenshots/fan-out.png'
+
+    New-TerminalPng -Command 'openspecpm search theme' `
+        -Output (Invoke-Cli 'search', 'theme') `
+        -Path  'docs/screenshots/search.png'
 
     New-TerminalPng -Command 'openspecpm validate' `
         -Output (Invoke-Cli 'validate') `
