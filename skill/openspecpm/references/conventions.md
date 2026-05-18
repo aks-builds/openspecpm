@@ -79,7 +79,7 @@ Scenario: User toggles dark mode
   And their preference is saved to the profile
 ```
 
-Lint heuristics (enforced softly at `propose`, hard at `sync` in Sprint 3+):
+Lint heuristics (enforced softly at `propose`, hard at `sync`):
 
 - Each scenario has one `Given`, one `When`, one `Then` (with optional `And`s).
 - `Then` uses an observable verb (displays, returns, stores, rejects, emails, …).

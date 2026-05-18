@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Post-1.0 doc sweep
+
+- **README.md:** lede tagline + flow Mermaid + "differences from CCPM" section now reference all five PM backends (GitHub, Azure DevOps, Jira, **Linear, GitLab**) instead of the original three. The "three differences" framing bumped to five — added bullets for audit-log-by-default and cross-feature task graphs, with the LLM judge folded into the BDD-authoring bullet.
+- **README cross-cutting line:** added optional Slack / Teams / generic-webhook broadcasts on `standup --broadcast`.
+- **README Roadmap:** marked `bdd-llm-reviewer` as shipped (no longer in the active 6); count adjusted to 5 remaining.
+- **README Project structure:** rewritten to reflect actual `cli/src/` contents (20 commands, 5 adapters under `cli/src/adapters/`, `audit.js` / `notify.js` / `telemetry.js` / `install-hints.js` / `bdd/judge.js`), workflow set (`test.yml` + `auto-approve.yml` + `release.yml` + `publish.yml`), `docs/screenshots/`, and `openspec/changes/` v2 roadmap directory.
+- **SKILL.md:** "three differences" → "five differences"; "(Sprint 3+)" / "(Sprint 3)" markers stripped from the workflow header and the phase table.
+- **SECURITY.md:** out-of-scope vendor list extended with Linear + GitLab (the in-scope secrets list already had them).
+- **`skill/openspecpm/references/{conventions,sync,execute,plan}.md`:** "(Sprint N)" / "(Sprint N+)" annotations stripped throughout — those markers were pre-1.0 development history noise, no longer meaningful.
+- **`openspec/changes/README.md`:** added a "Shipped" section calling out `bdd-llm-reviewer` (v1.0.0); active roadmap table reduced from 6 to 5 changes; totals recomputed (47 tasks, ~178 hrs).
+- **`openspec/changes/bdd-llm-reviewer/proposal.md`:** frontmatter `status: draft` → `status: shipped` with `shipped_in: 1.0.0` and `shipped_at: 2026-05-18`.
+- **`cli/bin/openspecpm.js`:** `program.version()` now reads from `package.json` at runtime instead of the hardcoded `'0.1.0-alpha.0'`. Future `npm version` bumps keep `openspecpm --version` in sync automatically.
+
 ## [1.0.0] - 2026-05-18
 
 ### Fix — release.yml must use a user-owned PAT, not GITHUB_TOKEN

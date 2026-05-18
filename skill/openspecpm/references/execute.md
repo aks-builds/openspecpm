@@ -29,9 +29,9 @@ A work item moved to `in_progress` in the PM tool, a local progress directory cr
 
 5. **Now do the work.** Use the spec scenarios in `openspec/changes/<feature>/specs/` as the acceptance criteria. Implement code, write tests, refactor — whatever the task requires. Use the BDD scenarios as the test plan, not just the spec.
 
-6. **Periodically broadcast progress.** Append to local `progress.md`, then sync to the PM tool with `openspecpm comment <task>` (Sprint 3). Don't post per-keystroke — once per meaningful checkpoint.
+6. **Periodically broadcast progress.** Append to local `progress.md`, then sync to the PM tool with `openspecpm comment <task>`. Don't post per-keystroke — once per meaningful checkpoint.
 
-7. **When done.** Run `openspecpm ship <feature>` (Sprint 3) to close the work item with a final comment and archive the OpenSpec change.
+7. **When done.** Run `openspecpm ship <feature>` to close the work item with a final comment and archive the OpenSpec change.
 
 ## Worktrees: hidden by default
 
@@ -41,7 +41,7 @@ Engineers may want a `git worktree` per feature so concurrent work doesn't colli
 openspecpm start <feature> --dev
 ```
 
-This creates `../openspec-<feature>/` on branch `openspec/<feature>`. **For non-technical users, do not surface this.** They will be confused by ghost folders. The default `start` command (Sprint 3+) skips the worktree and works in the current checkout.
+This creates `../openspec-<feature>/` on branch `openspec/<feature>`. **For non-technical users, do not surface this.** They will be confused by ghost folders. The default flow skips the worktree and works in the current checkout.
 
 ## Parallel agents
 
@@ -52,7 +52,7 @@ For each parallel task:
 2. Launch a sub-agent with a focused prompt: "Implement task T from the X feature. The BDD scenarios are at specs/Y.md. Use only files under <stream-scope>."
 3. Wait for completion, then merge.
 
-In Sprint 3, `openspecpm fan-out <feature>` automates the launch.
+`openspecpm fan-out <feature>` automates the launch by emitting ready-to-paste prompts for `parallel: true` tasks.
 
 ## What to avoid
 

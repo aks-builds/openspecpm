@@ -42,7 +42,7 @@ In scope:
 Out of scope:
 
 - Vulnerabilities in upstream OpenSpec, `gh`, `az`, `jira-cli` — report to those projects directly.
-- Vulnerabilities in your local PM backend (GitHub, Azure DevOps, Jira) — report to the vendor.
+- Vulnerabilities in your local PM backend (GitHub, Azure DevOps, Jira, Linear, GitLab) — report to the vendor.
 - Misconfiguration that exposes a user's own PAT or API token — that's on the user.
 
 ## Handling secrets

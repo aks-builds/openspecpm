@@ -1,6 +1,12 @@
 #!/usr/bin/env node
+import { readFileSync } from 'node:fs';
 import { Command } from 'commander';
 import { audited } from '../src/audit.js';
+
+// Read version from package.json so `npm version` bumps and the CLI's
+// `--version` output stay in sync. package.json always ships in the
+// npm tarball, so this resolves correctly under `npx openspecpm`.
+const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
 import { runInit } from '../src/commands/init.js';
 import { runDoctor } from '../src/commands/doctor.js';
 import { runPropose } from '../src/commands/propose.js';
@@ -27,7 +33,7 @@ const program = new Command();
 program
   .name('openspecpm')
   .description('Spec-driven, BDD-shaped project management for AI agents.')
-  .version('0.1.0-alpha.0');
+  .version(pkg.version);
 
 program
   .command('init')
