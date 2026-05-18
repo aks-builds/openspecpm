@@ -9,7 +9,7 @@ export function auditPath(cwd = process.cwd()) {
   return join(cwd, DIR, FILE);
 }
 
-export async function record({ command, args = {}, result = null, error = null, cwd = process.cwd() } = {}) {
+export async function record({ command, args = {}, result = null, error = null, meta = null, cwd = process.cwd() } = {}) {
   if (!command) return;
   const path = auditPath(cwd);
   await mkdir(dirname(path), { recursive: true });
@@ -20,6 +20,7 @@ export async function record({ command, args = {}, result = null, error = null, 
     result: result ? truncate(result, 500) : null,
     error: error ? truncate(typeof error === 'string' ? error : error.message ?? String(error), 500) : null,
   };
+  if (meta && typeof meta === 'object') entry.meta = scrub(meta);
   await appendFile(path, JSON.stringify(entry) + '\n', 'utf8');
 }
 
@@ -33,14 +34,22 @@ export async function tail(n = 50, cwd = process.cwd()) {
   });
 }
 
-const SECRET_KEYS = /token|secret|password|pat|api[_-]?key|auth|credential/i;
+const SECRET_SEGMENTS = new Set(['token', 'secret', 'password', 'pat', 'auth', 'credential']);
+
+function isSecretKey(k) {
+  if (/api[_-]?key/i.test(k)) return true;
+  for (const seg of k.toLowerCase().split(/[^a-z]+/)) {
+    if (seg && SECRET_SEGMENTS.has(seg)) return true;
+  }
+  return false;
+}
 
 function scrub(obj) {
   if (!obj || typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.map(scrub);
   const out = {};
   for (const [k, v] of Object.entries(obj)) {
-    if (SECRET_KEYS.test(k)) {
+    if (isSecretKey(k)) {
       out[k] = '<redacted>';
     } else if (v && typeof v === 'object') {
       out[k] = scrub(v);

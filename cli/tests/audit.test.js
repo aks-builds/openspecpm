@@ -37,6 +37,22 @@ test('record scrubs token-like keys', async () => {
   });
 });
 
+test('record persists meta when provided', async () => {
+  await withTmp(async (dir) => {
+    await record({
+      command: 'judge',
+      args: { feature: 'dark-mode' },
+      meta: { model: 'claude-haiku-4-5', input_tokens: 1234, cache_read_input_tokens: 800 },
+      cwd: dir,
+    });
+    const [entry] = await tail(1, dir);
+    assert.equal(entry.command, 'judge');
+    assert.equal(entry.meta.model, 'claude-haiku-4-5');
+    assert.equal(entry.meta.input_tokens, 1234);
+    assert.equal(entry.meta.cache_read_input_tokens, 800);
+  });
+});
+
 test('audited wrapper records success and failure', async () => {
   await withTmp(async (dir) => {
     const origCwd = process.cwd();

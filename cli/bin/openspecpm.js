@@ -48,7 +48,8 @@ program
   .option('-p, --prompt <text>', 'One-line description for the AI to seed the proposal')
   .option('-t, --type <type>', 'Change type: feature | bug | refactor | incident', 'feature')
   .option('--offline', 'Scaffold from templates without calling the openspec CLI')
-  .action((feature, opts) => audited('propose', runPropose)({ feature, prompt: opts.prompt, type: opts.type, offline: opts.offline }).catch(fatal));
+  .option('--llm', 'Augment BDD soft-lint with the LLM judge (requires ANTHROPIC_API_KEY)')
+  .action((feature, opts) => audited('propose', runPropose)({ feature, prompt: opts.prompt, type: opts.type, offline: opts.offline, llm: opts.llm }).catch(fatal));
 
 program
   .command('decompose <feature>')
@@ -63,6 +64,7 @@ program
   .option('--dry-run', 'Print the call plan without making remote changes')
   .option('--force', 'Bypass BDD lint errors')
   .option('--diff', 'Show the call plan in detail')
+  .option('--llm', 'Augment BDD hard-lint with the LLM judge (requires ANTHROPIC_API_KEY)')
   .option('-y, --yes', 'Skip the confirmation prompt for --all')
   .action((feature, opts) => {
     if (opts.all) {
@@ -72,7 +74,7 @@ program
       process.stderr.write('error: provide a <feature> or pass --all\n');
       process.exit(1);
     }
-    return audited('sync', runSync)({ feature, dryRun: opts.dryRun, force: opts.force, diff: opts.diff }).catch(fatal);
+    return audited('sync', runSync)({ feature, dryRun: opts.dryRun, force: opts.force, diff: opts.diff, llm: opts.llm }).catch(fatal);
   });
 
 program
@@ -116,7 +118,8 @@ program
 program
   .command('validate')
   .description('Schema + dependency + BDD-lint sweep across every change')
-  .action(() => audited('validate', runValidate)().catch(fatal));
+  .option('--llm', 'Augment BDD lint with the LLM judge (requires ANTHROPIC_API_KEY)')
+  .action((opts) => audited('validate', runValidate)({ llm: opts.llm }).catch(fatal));
 
 program
   .command('search <query>')

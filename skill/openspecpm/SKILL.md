@@ -41,9 +41,9 @@ Deterministic operations run through the Node CLI directly — same shape as CCP
 | Auth health check | `npx openspecpm doctor` |
 | Install missing tooling hints | `npx openspecpm doctor --install` |
 | PAT/token creation hints | `npx openspecpm doctor --setup-auth` |
-| Create a proposal | `npx openspecpm propose <feature>` |
+| Create a proposal | `npx openspecpm propose <feature> [--llm]` |
 | Decompose proposal → tasks | `npx openspecpm decompose <feature>` |
-| Push to PM tool | `npx openspecpm sync <feature>` |
+| Push to PM tool | `npx openspecpm sync <feature> [--llm]` |
 | Push every change at once | `npx openspecpm sync --all` |
 | Broadcast progress | `npx openspecpm comment <feature> <task>` |
 | Pull remote state back | `npx openspecpm reconcile <feature>` |
@@ -53,7 +53,7 @@ Deterministic operations run through the Node CLI directly — same shape as CCP
 | Standup digest | `npx openspecpm standup` |
 | What to work on next | `npx openspecpm next` |
 | What's blocked | `npx openspecpm blocked` |
-| Validate everything | `npx openspecpm validate` |
+| Validate everything | `npx openspecpm validate [--llm]` |
 | Re-lint on file change | `npx openspecpm watch [feature]` |
 | Search across changes | `npx openspecpm search <query>` |
 | Fan-out parallel agents | `npx openspecpm fan-out <feature>` |

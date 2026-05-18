@@ -33,6 +33,17 @@ export async function runDoctor({ adapter, install = false, setupAuth = false } 
     if (install) suggestAdapterInstall(name);
     if (setupAuth) suggestAuth(name);
   }
+
+  process.stdout.write('\n[judge]\n');
+  if (process.env.ANTHROPIC_API_KEY) {
+    line(true, 'ANTHROPIC_API_KEY is set (LLM BDD judge available)');
+  } else {
+    line(
+      false,
+      'ANTHROPIC_API_KEY not set',
+      'Create a key at https://console.anthropic.com/settings/keys, then set ANTHROPIC_API_KEY in your shell. Required for `openspecpm propose --llm` and `sync --llm`.',
+    );
+  }
 }
 
 function line(ok, msg, remediation) {

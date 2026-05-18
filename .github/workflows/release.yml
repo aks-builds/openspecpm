@@ -1,0 +1,146 @@
+name: release
+
+# Manually-dispatched release-preparation workflow. Bumps the version,
+# rolls CHANGELOG.md, opens a PR on a release/* branch, and enables
+# auto-merge. Approval is provided by .github/workflows/auto-approve.yml
+# (App + secondary-account PAT, both running in parallel via the
+# reusable workflow at aks-builds/workflows). Once the PR auto-merges,
+# .github/workflows/publish.yml picks it up and ships to npm.
+#
+# Prerequisites (one-time):
+#   - Repo secret NPM_TOKEN (only consumed by publish.yml, not here).
+#   - Repo secret APPROVER_PAT (a PAT from a secondary GitHub account
+#     with `repo` scope) and/or the App credentials APPROVER_APP_ID +
+#     APPROVER_APP_PRIVATE_KEY. Without at least one of these, the PR
+#     won't get auto-approved and won't auto-merge.
+#   - Branch protection on main must allow auto-merge after the
+#     configured number of approvals (1 for App-only or PAT-only;
+#     2 if both are configured and you require 2 reviewers).
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump'
+        required: true
+        type: choice
+        default: prerelease
+        options:
+          - prerelease
+          - patch
+          - minor
+          - major
+      preid:
+        description: 'Prerelease identifier (only used when bump = prerelease)'
+        required: false
+        default: alpha
+
+permissions:
+  contents: write        # push the release/* branch
+  pull-requests: write   # open the PR + enable auto-merge
+
+jobs:
+  open-release-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Configure git identity
+        run: |
+          git config user.name "aks-builds"
+          git config user.email "its.aks@outlook.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Bump version (no git commit; we'll handle that ourselves)
+        id: bump
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.bump }}" = "prerelease" ]; then
+            RAW=$(npm version prerelease --preid "${{ inputs.preid }}" --no-git-tag-version)
+          else
+            RAW=$(npm version "${{ inputs.bump }}" --no-git-tag-version)
+          fi
+          VERSION="${RAW#v}"
+          if printf '%s' "$VERSION" | grep -q -- '-'; then
+            PRERELEASE=true
+          else
+            PRERELEASE=false
+          fi
+          BRANCH="release/v$VERSION"
+          echo "version=$VERSION"        >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION"           >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH"          >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE"  >> "$GITHUB_OUTPUT"
+          echo "Bumping to $VERSION on branch $BRANCH (prerelease: $PRERELEASE)"
+
+      - name: Roll CHANGELOG `[Unreleased]` → `[VERSION] - DATE`
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e "
+            const fs = require('fs');
+            const v = '${{ steps.bump.outputs.version }}';
+            const d = new Date().toISOString().slice(0, 10);
+            const path = 'CHANGELOG.md';
+            const c = fs.readFileSync(path, 'utf8');
+            const next = c.replace('## [Unreleased]', '## [Unreleased]\n\n## [' + v + '] - ' + d);
+            if (next === c) {
+              process.stderr.write('CHANGELOG.md has no [Unreleased] section; skipping roll.\n');
+            } else {
+              fs.writeFileSync(path, next);
+            }
+          "
+
+      - name: Extract release notes for PR body
+        id: notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.bump.outputs.version }}"
+          awk -v ver="$VERSION" '
+            $0 ~ ("^## \\[" ver "\\]")  { flag=1; next }
+            flag && /^## \[/             { exit }
+            flag                         { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "Release ${VERSION}." > release-notes.md
+          fi
+
+      - name: Push release branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout -b "${{ steps.bump.outputs.branch }}"
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "chore(release): ${{ steps.bump.outputs.version }}"
+          git push origin "${{ steps.bump.outputs.branch }}"
+
+      - name: Open PR and enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PR_URL=$(gh pr create \
+            --base main \
+            --head "${{ steps.bump.outputs.branch }}" \
+            --title "chore(release): ${{ steps.bump.outputs.version }}" \
+            --body-file release-notes.md)
+          echo "Opened $PR_URL"
+          # Enable auto-merge so the PR ships the moment auto-approve clears branch protection.
+          gh pr merge "$PR_URL" --auto --squash
+          echo "Auto-merge (squash) enabled."

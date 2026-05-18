@@ -27,6 +27,7 @@ Never write tokens to `.openspecpm/config.json`. Use environment variables:
 - Jira: `JIRA_EMAIL` + `JIRA_API_TOKEN`.
 - Linear: `LINEAR_API_KEY`.
 - GitLab: `GITLAB_TOKEN` (`api` scope).
+- LLM BDD judge (optional, opt-in via `--llm` or `judge.enabled` config): `ANTHROPIC_API_KEY`.
 
 ## Frontmatter schemas
 

@@ -1,0 +1,120 @@
+name: publish
+
+# Post-merge half of the release pipeline. Fires when a release/* PR
+# is merged into main. Reads the bumped version from package.json,
+# publishes to npm with provenance, syncs dist-tags, tags the commit,
+# and creates a GitHub release. See .github/workflows/release.yml for
+# the prepare step (PR creation), and CONTRIBUTING.md § Releasing for
+# the human-facing flow.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write   # create tag + GitHub release
+  id-token: write   # npm provenance (sigstore attestation)
+
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Configure git identity
+        run: |
+          git config user.name "aks-builds"
+          git config user.email "its.aks@outlook.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve release identifiers from package.json
+        id: ver
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          if printf '%s' "$VERSION" | grep -q -- '-'; then
+            DISTTAG=alpha
+            PRERELEASE=true
+          else
+            DISTTAG=latest
+            PRERELEASE=false
+          fi
+          echo "version=$VERSION"        >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION"           >> "$GITHUB_OUTPUT"
+          echo "disttag=$DISTTAG"        >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE"  >> "$GITHUB_OUTPUT"
+          echo "Publishing $VERSION (dist-tag: $DISTTAG, prerelease: $PRERELEASE)"
+
+      - name: Abort if tag already exists (idempotency guard)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git rev-parse "refs/tags/${{ steps.ver.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Tag ${{ steps.ver.outputs.tag }} already exists - this version has already been published. Exiting."
+            exit 1
+          fi
+
+      - name: Publish to npm
+        run: npm publish --access public --tag ${{ steps.ver.outputs.disttag }} --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Sync `latest` dist-tag (pre-1.0 alpha line)
+        # Pre-1.0 prereleases also move `latest` so `npx openspecpm@latest`
+        # always installs the newest alpha. When 1.0 ships, the stable
+        # publish above sets `latest` directly and this step is a no-op.
+        if: steps.ver.outputs.prerelease == 'true' && startsWith(steps.ver.outputs.version, '0.')
+        run: npm dist-tag add openspecpm@${{ steps.ver.outputs.version }} latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Extract release notes from CHANGELOG
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.ver.outputs.version }}"
+          awk -v ver="$VERSION" '
+            $0 ~ ("^## \\[" ver "\\]")  { flag=1; next }
+            flag && /^## \[/             { exit }
+            flag                         { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "Release ${VERSION}." > release-notes.md
+          fi
+
+      - name: Tag the commit and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          git tag "${{ steps.ver.outputs.tag }}"
+          git push origin "${{ steps.ver.outputs.tag }}"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PRERELEASE_FLAG=""
+          if [ "${{ steps.ver.outputs.prerelease }}" = "true" ]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+          gh release create "${{ steps.ver.outputs.tag }}" \
+            --title "${{ steps.ver.outputs.tag }}" \
+            --notes-file release-notes.md \
+            --target main \
+            $PRERELEASE_FLAG

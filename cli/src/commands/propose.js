@@ -1,11 +1,14 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { propose, changeExists, changeDir, OpenSpecError } from '../openspec-bridge.js';
 import { lintChange, summarize, formatFindings } from '../bdd/linter.js';
+import { judgeChange, defaultClient, DEFAULT_MODEL } from '../bdd/judge.js';
 import { CHANGE_TYPES, proposalTemplate, specsTemplate, STARTER_TASKS } from '../bdd/templates.js';
+import { readConfig } from '../config.js';
+import { record } from '../audit.js';
 
-export async function runPropose({ feature, prompt, type = 'feature', offline = false } = {}) {
+export async function runPropose({ feature, prompt, type = 'feature', offline = false, llm = false } = {}) {
   if (!feature) throw new Error('feature name is required');
   if (!CHANGE_TYPES.includes(type)) {
     const err = new Error(`Unknown change type "${type}".`);
@@ -15,14 +18,14 @@ export async function runPropose({ feature, prompt, type = 'feature', offline = 
 
   if (changeExists(feature)) {
     process.stdout.write(`Change "${feature}" already exists at ${changeDir(feature)}. Skipping propose.\n`);
-    await softLint(changeDir(feature));
+    await softLint(changeDir(feature), { llm, feature });
     return changeDir(feature);
   }
 
   if (offline) {
     const dir = await scaffoldOffline(feature, type);
     process.stdout.write(`\nProposal scaffolded offline at ${dir} (type=${type}).\n`);
-    await softLint(dir);
+    await softLint(dir, { llm, feature });
     process.stdout.write(`Next: refine the templates, then run \`openspecpm sync ${feature}\`.\n`);
     return dir;
   }
@@ -31,7 +34,7 @@ export async function runPropose({ feature, prompt, type = 'feature', offline = 
   try {
     const dir = await propose(feature, seed);
     process.stdout.write(`\nProposal created at ${dir}.\n`);
-    await softLint(dir);
+    await softLint(dir, { llm, feature });
     process.stdout.write(`Next: review proposal.md + specs/, then run \`openspecpm sync ${feature}\`.\n`);
     return dir;
   } catch (err) {
@@ -57,11 +60,43 @@ async function scaffoldOffline(feature, type) {
   return dir;
 }
 
-async function softLint(dir) { // eslint-disable-line
+async function softLint(dir, { llm = false, feature } = {}) { // eslint-disable-line
   const findings = await lintChange(dir);
+  const judgeEnabled = await isJudgeEnabled(llm);
+  if (judgeEnabled) {
+    const extra = await runJudgeSoft(dir, feature);
+    findings.push(...extra);
+  }
   const sum = summarize(findings);
   if (!sum.total) return;
   process.stdout.write(`\nBDD lint (soft): ${sum.errors} errors, ${sum.warnings} warnings\n`);
   process.stdout.write(formatFindings(findings));
   process.stdout.write('These will block `sync` unless you pass --force. Refine scenarios before pushing.\n');
+}
+
+async function isJudgeEnabled(llm) {
+  if (llm) return true;
+  const cfg = await readConfig();
+  return Boolean(cfg?.judge?.enabled);
+}
+
+async function runJudgeSoft(dir, feature) {
+  try {
+    const cfg = await readConfig();
+    const model = cfg?.judge?.model ?? DEFAULT_MODEL;
+    const proposalPath = join(dir, 'proposal.md');
+    const proposal = existsSync(proposalPath) ? await readFile(proposalPath, 'utf8') : '';
+    const client = await defaultClient();
+    return await judgeChange(dir, {
+      client,
+      model,
+      proposal,
+      onUsage: (u) => {
+        record({ command: 'judge', args: { feature }, meta: u }).catch(() => {});
+      },
+    });
+  } catch (err) {
+    process.stdout.write(`  (LLM judge skipped: ${err.message})\n`);
+    return [];
+  }
 }
