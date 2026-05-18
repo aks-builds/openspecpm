@@ -78,13 +78,14 @@ Releases run through two workflows. No direct push to `main` and no local `npm p
 
 **One-time setup (repo secrets):**
 
-1. `NPM_TOKEN` — npm automation token. npmjs.com → Account → Access Tokens → Generate → **Automation** type → copy into GitHub repo Settings → Secrets and variables → Actions.
-2. Approver(s) — at least one of:
+1. `RELEASE_PR_PAT` — Personal Access Token from the **primary `aks-builds` account** with `repo` scope (classic) or fine-grained `Contents: Read and write` + `Pull requests: Read and write` scoped to this repo. Used by `release.yml` to push the `release/*` branch and open the PR. **Must be a user-owned PAT, not `GITHUB_TOKEN`** — by design, events triggered by `GITHUB_TOKEN` do not fire downstream workflows, so an auto-opened release PR would never trigger `auto-approve.yml` or `test.yml` and would sit forever waiting for approvals and status checks. A user-owned PAT is not subject to this anti-recursion rule.
+2. `NPM_TOKEN` — npm automation token. npmjs.com → Account → Access Tokens → Generate → **Automation** type → copy into GitHub repo Settings → Secrets and variables → Actions.
+3. Approver(s) — at least one of:
    - `APPROVER_APP_ID` + `APPROVER_APP_PRIVATE_KEY` — GitHub App credentials. Approval shows up as the bot identity.
-   - `APPROVER_PAT` — a Personal Access Token from a **secondary GitHub account** with `repo` scope. Approval shows up as that user. Useful when you want a real human identity in the review history alongside (or instead of) the bot.
+   - `APPROVER_PAT` — a Personal Access Token from a **secondary GitHub account** (must be a different user than the `RELEASE_PR_PAT` owner — GitHub rejects self-approval) with `repo` scope. Approval shows up as that user. Useful when you want a real human identity in the review history alongside (or instead of) the bot.
 
    Configuring both gives two parallel approvals from two distinct identities — sane belt-and-suspenders for branch protection rules that require ≥1 reviewer other than the PR author.
-3. Branch protection on `main` — configure the required-approvers count to match how many of the above you configured (1 if you set up only App or only PAT; 2 if you set up both and want both to count). Make sure auto-merge is allowed (Settings → General → Pull Requests → Allow auto-merge).
+4. Branch protection on `main` — configure the required-approvers count to match how many of the above you configured (1 if you set up only App or only PAT; 2 if you set up both and want both to count). Make sure auto-merge is allowed (Settings → General → Pull Requests → Allow auto-merge).
 
 **Cutting a release:**
 

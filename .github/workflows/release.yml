@@ -8,6 +8,13 @@ name: release
 # .github/workflows/publish.yml picks it up and ships to npm.
 #
 # Prerequisites (one-time):
+#   - Repo secret RELEASE_PR_PAT (a PAT from the primary aks-builds
+#     account with `repo` scope). This is what pushes the release/*
+#     branch and opens the PR. GITHUB_TOKEN cannot be used here: by
+#     design, events triggered by GITHUB_TOKEN do not fire downstream
+#     workflows, so auto-approve.yml and test.yml would never run on
+#     the release PR and it would sit forever waiting for approvals
+#     and status checks. A user-owned PAT is not subject to this rule.
 #   - Repo secret NPM_TOKEN (only consumed by publish.yml, not here).
 #   - Repo secret APPROVER_PAT (a PAT from a secondary GitHub account
 #     with `repo` scope) and/or the App credentials APPROVER_APP_ID +
@@ -47,7 +54,10 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # User-owned PAT so the subsequent `git push` and `gh pr create`
+          # trigger downstream workflows (auto-approve, test). GITHUB_TOKEN
+          # would suppress them per GitHub's anti-recursion rule.
+          token: ${{ secrets.RELEASE_PR_PAT }}
 
       - uses: actions/setup-node@v6
         with:
@@ -131,7 +141,9 @@ jobs:
 
       - name: Open PR and enable auto-merge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use the user-owned PAT so the PR's `opened` event fires
+          # downstream workflows (auto-approve, test).
+          GH_TOKEN: ${{ secrets.RELEASE_PR_PAT }}
         shell: bash
         run: |
           set -euo pipefail
