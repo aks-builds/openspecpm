@@ -1,6 +1,6 @@
 {
   "name": "openspecpm",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Spec-driven, BDD-shaped project management for AI agents — OpenSpec proposals synced to GitHub, Azure DevOps, Jira, Linear, or GitLab.",
   "type": "module",
   "bin": {
