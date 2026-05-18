@@ -148,10 +148,36 @@ function out(s) {
   process.stdout.write(s + '\n');
 }
 
+// Strip C0/C1 control chars (except common whitespace), bidi overrides, and
+// zero-width chars from text we forward to a remote tracker as an issue body.
+// A proposal author could intentionally or accidentally include these and
+// they show up confusingly (or as homograph-attack vectors) in GitHub/Jira
+// issue UIs. Implemented as a codepoint predicate rather than a regex literal
+// so the source file stays pure ASCII (a regex with literal control chars
+// makes git treat the file as binary).
+function isPrintableChar(cp) {
+  if (cp === 0x09 || cp === 0x0A || cp === 0x0D) return true; // keep TAB / LF / CR
+  if (cp <= 0x1F) return false;                                // C0 controls
+  if (cp === 0x7F) return false;                               // DEL
+  if (cp >= 0x80 && cp <= 0x9F) return false;                  // C1 controls
+  if (cp >= 0x200B && cp <= 0x200F) return false;              // zero-width + joiners + LRM/RLM
+  if (cp >= 0x202A && cp <= 0x202E) return false;              // LRE/RLE/PDF/LRO/RLO bidi overrides
+  if (cp >= 0x2066 && cp <= 0x2069) return false;              // LRI/RLI/FSI/PDI isolates
+  return true;
+}
+
+function sanitizeText(s) {
+  const out = [];
+  for (const ch of String(s)) {
+    if (isPrintableChar(ch.codePointAt(0))) out.push(ch);
+  }
+  return out.join('');
+}
+
 function extractSummary(md) {
   const { body } = fm.parse(md);
   const firstPara = body.split(/\r?\n\r?\n/).find((p) => p.trim() && !p.startsWith('#'));
-  return (firstPara ?? '').trim().slice(0, 1000);
+  return sanitizeText((firstPara ?? '').trim()).slice(0, 1000);
 }
 
 function parseChecklist(body) {
