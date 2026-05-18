@@ -1,6 +1,6 @@
 # Sync — Pushing an OpenSpec change to the PM tool
 
-**When to use this:** The user has a proposal + tasks ready and wants them tracked in GitHub Issues / Azure DevOps Boards / Jira / Linear / GitLab Issues.
+**When to use this:** The user has a proposal + tasks ready and wants them tracked in GitHub Issues / Azure DevOps Boards / Jira / Linear / GitLab.
 
 ## Outcome
 
@@ -52,5 +52,5 @@ The CLI handles the translation. Author tasks in the OpenSpec/CCPM dialect descr
 ## After sync
 
 - Each item is now visible in the PM tool. The user can route stakeholders to those URLs for sign-off.
-- Progress narrative still lives locally in `openspec/changes/<feature>/updates/<task>/progress.md`. Use `openspecpm comment <task>` (Sprint 3) to broadcast a new update to the PM tool.
+- Progress narrative still lives locally in `openspec/changes/<feature>/updates/<task>/progress.md`. Use `openspecpm comment <task>` to broadcast a new update to the PM tool.
 - Route to `references/execute.md` when the user is ready to start building.

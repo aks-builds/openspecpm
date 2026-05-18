@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Faks-builds%2F03ce34dc5c6486c004dd8cf4c27ea87c%2Fraw%2Ftests.json)](cli/tests)
 
-> Spec-driven, BDD-shaped project management for AI agents — author once in [OpenSpec](https://github.com/Fission-AI/OpenSpec), sync to GitHub Issues, Azure DevOps Boards, or Jira.
+> Spec-driven, BDD-shaped project management for AI agents — author once in [OpenSpec](https://github.com/Fission-AI/OpenSpec), sync to GitHub Issues, Azure DevOps Boards, Jira, Linear, or GitLab.
 
 OpenSpecPM turns natural-language intent ("plan X", "sync the X epic", "what's blocked", "ship X") into a disciplined flow:
 
@@ -14,7 +14,7 @@ flowchart LR
     Proposal["📝 **proposal.md**<br/>(OpenSpec)"]
     BDD["📋 **BDD specs**<br/>Given / When / Then"]
     Tasks["✅ **tasks**"]
-    Tracked["🎯 **Tracked work items**<br/>GitHub · ADO · Jira"]
+    Tracked["🎯 **Tracked work items**<br/>GitHub · ADO · Jira · Linear · GitLab"]
     Shipped["🚀 **Shipped code**"]
 
     Idea --> Proposal --> BDD --> Tasks --> Tracked --> Shipped
@@ -30,11 +30,13 @@ flowchart LR
     class Shipped doneC
 ```
 
-It is a sibling of [CCPM](https://github.com/automazeio/ccpm), with three differences:
+It is a sibling of [CCPM](https://github.com/automazeio/ccpm), with five differences:
 
-1. **OpenSpec drives spec authoring** — every feature gets `proposal.md`, `design.md`, `tasks.md`, and a `specs/` folder of BDD scenarios.
-2. **The PM tool is pluggable** — an interactive wizard at `init` time picks GitHub Issues/Projects, Azure DevOps Boards, or Jira.
-3. **Built for non-engineers too** — PMs/BAs/PgMs can drive the flow. A `doctor` command owns auth-setup pain. Worktrees are hidden by default.
+1. **OpenSpec drives spec authoring + BDD scenarios become enforceable.** Every feature gets `proposal.md`, `design.md`, `tasks.md`, and a `specs/` folder of Given/When/Then scenarios. A heuristic linter blocks vague Thens at `sync` time. An optional [LLM judge](#architecture-highlights) (Claude Haiku 4.5, opt-in via `--llm`) catches cross-spec contradictions and missing-coverage gaps the regex linter can't see.
+2. **Five pluggable PM backends** — an interactive wizard at `init` time picks GitHub Issues/Projects, Azure DevOps Boards, Jira, Linear, or GitLab. New backends register without forking via `registerAdapter()`.
+3. **Built for non-engineers too** — PMs/BAs/PgMs can drive the flow. A `doctor` command owns auth-setup pain (with `--install` and `--setup-auth` flags for OS-specific install hints and PAT-creation URLs). Worktrees are hidden by default.
+4. **Audit-logged by default.** Every command appends a JSONL entry (secrets scrubbed) to `.openspecpm/audit.log`. Useful for regulated industries that need a paper trail; useful for the rest of us when something looks weird.
+5. **Cross-feature task graphs.** `depends_on:` can reach across changes (`<feature>/<task-title>` or `<feature>/<external-id>`), so `next` and `blocked` reflect the whole project rather than one feature in isolation.
 
 ## Install
 
@@ -314,7 +316,7 @@ flowchart LR
     class Shipped doneC
 ```
 
-> Cross-cutting on every command: audit log (`.openspecpm/audit.log`, secrets scrubbed) · token-bucket rate-limiting per adapter · OpenSpec version probe · optional opt-in telemetry.
+> Cross-cutting on every command: audit log (`.openspecpm/audit.log`, secrets scrubbed) · token-bucket rate-limiting per adapter · OpenSpec version probe · optional opt-in telemetry · optional Slack / Teams / generic-webhook broadcasts on `standup --broadcast`.
 
 ## Workflow phases
 
@@ -337,9 +339,9 @@ OpenSpecPM is organized into five phases, each with a reference doc under [`skil
 
 ## Roadmap
 
-Active v2 work is tracked as OpenSpec changes under [`openspec/changes/`](openspec/changes/README.md). Six features are scaffolded with full proposals, dependency-aware task lists, and BDD scenarios: dependency-graph visualization, LLM-backed BDD reviewer, spec → test scaffolding, compliance traceability export, three new adapters (Notion / ClickUp / Asana), and a real agent orchestrator that graduates `fan-out` from prompt-emitter to dispatcher.
+Active v2 work is tracked as OpenSpec changes under [`openspec/changes/`](openspec/changes/README.md). The first scaffolded feature — **`bdd-llm-reviewer`** — shipped in v1.0.0. Five remain: dependency-graph visualization, spec → test scaffolding, compliance traceability export, three new adapters (Notion / ClickUp / Asana), and a real agent orchestrator that graduates `fan-out` from prompt-emitter to dispatcher.
 
-OpenSpecPM dogfoods itself: anyone can `openspecpm next` to see what's ready to start, or `openspecpm sync <change>` to push any of the six into a tracked PM tool.
+OpenSpecPM dogfoods itself: anyone can `openspecpm next` to see what's ready to start, or `openspecpm sync <change>` to push any of the five into a tracked PM tool.
 
 ## Project structure
 
@@ -348,19 +350,32 @@ openspecpm/
 ├── README.md              this file
 ├── LICENSE                MIT
 ├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── SECURITY.md
 ├── package.json
-├── .github/workflows/test.yml
+├── .github/
+│   ├── workflows/         test.yml · auto-approve.yml · release.yml · publish.yml
+│   ├── ISSUE_TEMPLATE/
+│   └── PULL_REQUEST_TEMPLATE.md
+├── docs/screenshots/      README captures + render.ps1 renderer
+├── openspec/changes/      v2 roadmap (each subdir is a tracked change)
 ├── skill/openspecpm/      Claude Code Agent Skill
 │   ├── SKILL.md
-│   └── references/        conventions, plan, structure, sync, execute, track
+│   └── references/        conventions · plan · structure · sync · execute · track
 └── cli/
     ├── bin/openspecpm.js  Commander entrypoint
     ├── src/
-    │   ├── commands/      init, doctor, propose, sync, status, standup, next, blocked, ship
-    │   ├── adapters/      base, github, azure, jira, index
-    │   ├── bdd/           linter, templates
-    │   ├── http.js        REST helper for ADO + Jira
-    │   ├── tracking.js    listChanges, findNext, findBlocked, findRecent
+    │   ├── commands/      init · doctor · propose · decompose · sync · comment · reconcile ·
+    │   │                  status · standup · next · blocked · validate · search · fan-out ·
+    │   │                  bug-report · ship · assign · watch · help · bulk
+    │   ├── adapters/      base · github · azure · jira · linear · gitlab · index
+    │   ├── bdd/           linter · judge · templates
+    │   ├── audit.js       JSONL audit log + secret scrubber
+    │   ├── http.js        REST helper for ADO / Jira / Linear / GitLab
+    │   ├── tracking.js    listChanges · findNext · findBlocked · findRecent
+    │   ├── notify.js      Slack / Teams / generic-webhook envelopes
+    │   ├── telemetry.js   opt-in, audit-log-only at alpha
+    │   ├── install-hints.js
     │   ├── openspec-bridge.js
     │   ├── config.js
     │   ├── frontmatter.js

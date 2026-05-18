@@ -1,7 +1,9 @@
 ---
 name: bdd-llm-reviewer
 type: feature
-status: draft
+status: shipped
+shipped_in: 1.0.0
+shipped_at: 2026-05-18
 schema_version: 1
 ---
 

@@ -42,6 +42,6 @@ A fully-formed OpenSpec change at `openspec/changes/<feature>/` containing:
 
 ## After this phase
 
-- If the user is ready to push to their PM tool: route to `references/sync.md` (Sprint 2).
-- If the user wants to decompose into tasks first: route to `references/structure.md` (Sprint 2).
+- If the user is ready to push to their PM tool: route to `references/sync.md`.
+- If the user wants to decompose into tasks first: route to `references/structure.md`.
 - If the user wants to check what other changes exist: run `openspecpm status`.

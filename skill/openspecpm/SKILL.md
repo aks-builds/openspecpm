@@ -5,7 +5,7 @@ description: "OpenSpecPM — spec-driven, BDD-shaped project management for any 
 
 # OpenSpecPM — Spec-driven PM Agent Skill
 
-A sibling of CCPM with three differences: **OpenSpec** authors the specs, **adapters** make the PM backend pluggable (GitHub / Azure DevOps / Jira / Linear / GitLab), and the wizard is **friendly to non-engineers**.
+A sibling of CCPM with five differences: **OpenSpec** authors the specs (with a heuristic BDD linter plus an optional LLM judge), **adapters** make the PM backend pluggable (GitHub / Azure DevOps / Jira / Linear / GitLab), the wizard is **friendly to non-engineers**, every command is **audit-logged** by default, and `depends_on:` reaches **across features** so `next`/`blocked` reflect the whole project.
 
 ## Workflow
 
@@ -14,7 +14,7 @@ idea → openspecpm propose <feature>           (OpenSpec authors proposal.md, d
      → review BDD scenarios                   (Given/When/Then)
      → openspecpm sync <feature>              (push to chosen PM backend, idempotent)
      → openspecpm status / standup            (track local + remote)
-     → openspecpm ship <feature>              (Sprint 3+)
+     → openspecpm ship <feature>              (close + archive)
 ```
 
 ## Phases
@@ -25,7 +25,7 @@ idea → openspecpm propose <feature>           (OpenSpec authors proposal.md, d
 | **Structure** | A proposal exists and needs decomposition into tasks. | `references/structure.md` |
 | **Sync** | Local OpenSpec change needs to become PM-tool work items. | `references/sync.md` |
 | **Execute** | User wants to start work on a tracked item. | `references/execute.md` |
-| **Track** | User asks status / standup / what's next / what's blocked. | `references/track.md` (Sprint 3) |
+| **Track** | User asks status / standup / what's next / what's blocked. | `references/track.md` |
 
 ## Conventions
 
