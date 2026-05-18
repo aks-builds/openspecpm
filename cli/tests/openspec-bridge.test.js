@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { probe, OpenSpecError, OPENSPEC_MIN_VERSION } from '../src/openspec-bridge.js';
+import { probe, OpenSpecError, OPENSPEC_MIN_VERSION, assertSafeFeatureName, changeDir, changeExists } from '../src/openspec-bridge.js';
 
 function fakeRunner(map) {
   return async (cmd, args) => {
@@ -32,4 +32,41 @@ test('probe surfaces install hint when missing', async () => {
     assert.match(err.remediation ?? '', /openspec/);
     return true;
   });
+});
+
+test('assertSafeFeatureName accepts safe slugs', () => {
+  for (const ok of ['dark-mode', 'auth_rate.limit', 'feat1', 'X', 'a-b-c-d']) {
+    assertSafeFeatureName(ok); // does not throw
+  }
+});
+
+test('assertSafeFeatureName rejects path-traversal and separators', () => {
+  const bad = [
+    '../etc',
+    '..',
+    '.',
+    'a/b',
+    'a\\b',
+    'C:\\Windows',
+    'c:relative',
+    '/abs',
+    '.hidden',     // leading dot is disallowed (first char must be alnum)
+    '-leading',    // leading dash disallowed
+    '',
+    'has space',
+    'em‮dash',
+    'with;semicolon',
+  ];
+  for (const f of bad) {
+    assert.throws(() => assertSafeFeatureName(f), (err) => {
+      assert.match(err.message, /(required|Invalid)/);
+      assert.ok(err.remediation, 'every rejection must carry remediation');
+      return true;
+    }, `expected rejection for ${JSON.stringify(f)}`);
+  }
+});
+
+test('changeDir + changeExists also reject traversal input (defense in depth)', () => {
+  assert.throws(() => changeDir('../escape'), /Invalid feature name/);
+  assert.throws(() => changeExists('../escape'), /Invalid feature name/);
 });
