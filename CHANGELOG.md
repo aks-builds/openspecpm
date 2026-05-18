@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Quality sweep — opportunistic items from the 1.0.0 audit
+
+Seven commits covering the cheap wins and the two robustness items from the QE audit that were deferred out of the security-hardening release (1.0.1). 124/124 tests; +11 new tests.
+
+**Cheap wins (one-shot fixes):**
+
+- **`cli/src/commands/help.js`** — `watch` row added to the Track section. The command shipped in Sprint 6 but never appeared in `openspecpm help-table`; users discovered it via Commander `--help` and assumed it was experimental. (M10)
+- **`.gitattributes`** added with `* text=auto eol=lf` plus binary markers for images / PDFs / archives. Stops the "LF will be replaced by CRLF" warning every Windows commit was producing, locks the canonical on-disk form to LF, and keeps the `docs/screenshots/` PNGs safe from line-ending normalization. (LOW-3)
+- **`README.md`** — "Every command appends a JSONL entry…" tightened to "Every CLI invocation appends a JSONL entry…" in both places. The wrapper writes one entry per top-level invocation; sub-operations inside commands (sync.js patching tasks.md, reconcile.js rewriting frontmatter, ship.js shelling out to `openspec archive`) do not write their own. Anyone relying on the audit log for compliance needs the accurate framing. (M7)
+
+**Robustness (TOCTOU helper):**
+
+- **`cli/src/io.js`** — new `safeReadFile(path)` returns `null` on `ENOENT` and propagates everything else. Replaces the racy `existsSync(path) ? await readFile(path) : ''` idiom across 7 sites (`comment.js` ×2, `decompose.js` ×2, `fan-out.js` ×3, `propose.js`, `sync.js` ×2, `validate.js`). Between the `existsSync` and the `readFile`, the file could be deleted (commonly by `watch` firing on an unrelated change, or by parallel CLI invocations), throwing `ENOENT` deep in the consumer with an absolute path in the stack trace. Single readFile call now, ENOENT caught inline. Also removed a duplicate local `readFileSafe` helper in `fan-out.js`. (M4)
+
+**Test gap (M2, partial):**
+
+- **`cli/tests/sync.test.js`** — 4 direct tests for `runSync` via a registered `FakeAdapter`: happy path with frontmatter patching, BDD lint gate with `--force` remediation hint, H5 regression (adapter failure throws and `last_error` persists), idempotency (already-created tasks skip).
+- **`cli/tests/reconcile.test.js`** — 2 tests: remote-closed drift writes `closed: true` + `done: true` locally; dry-run preserves tasks.md byte-identical.
+- **`cli/tests/ship.test.js`** — 2 tests: `ship --yes --skip-archive` closes every open synced task + the epic; no-op on an unsynced feature. `--skip-archive` avoids the `execa('openspec', ['archive', feature])` subprocess; archive-path coverage deferred to a runner-injection refactor.
+- **`cli/tests/io.test.js`** — 3 tests for the new `safeReadFile` helper.
+
+M2 coverage progress: 5 of 20 commands now have direct tests (the preexisting `decompose` + `search`, plus the three added here). The remaining 15 commands are tracked as follow-up.
+
 ## [1.0.1] - 2026-05-18
 
 ### Security hardening — pass through audit findings
