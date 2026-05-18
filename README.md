@@ -35,7 +35,7 @@ It is a sibling of [CCPM](https://github.com/automazeio/ccpm), with five differe
 1. **OpenSpec drives spec authoring + BDD scenarios become enforceable.** Every feature gets `proposal.md`, `design.md`, `tasks.md`, and a `specs/` folder of Given/When/Then scenarios. A heuristic linter blocks vague Thens at `sync` time. An optional [LLM judge](#architecture-highlights) (Claude Haiku 4.5, opt-in via `--llm`) catches cross-spec contradictions and missing-coverage gaps the regex linter can't see.
 2. **Five pluggable PM backends** — an interactive wizard at `init` time picks GitHub Issues/Projects, Azure DevOps Boards, Jira, Linear, or GitLab. New backends register without forking via `registerAdapter()`.
 3. **Built for non-engineers too** — PMs/BAs/PgMs can drive the flow. A `doctor` command owns auth-setup pain (with `--install` and `--setup-auth` flags for OS-specific install hints and PAT-creation URLs). Worktrees are hidden by default.
-4. **Audit-logged by default.** Every command appends a JSONL entry (secrets scrubbed) to `.openspecpm/audit.log`. Useful for regulated industries that need a paper trail; useful for the rest of us when something looks weird.
+4. **Audit-logged by default.** Every CLI invocation appends a JSONL entry (secrets scrubbed) to `.openspecpm/audit.log`. Useful for regulated industries that need a paper trail; useful for the rest of us when something looks weird.
 5. **Cross-feature task graphs.** `depends_on:` can reach across changes (`<feature>/<task-title>` or `<feature>/<external-id>`), so `next` and `blocked` reflect the whole project rather than one feature in isolation.
 
 ## Architecture
@@ -316,7 +316,7 @@ npx openspecpm ship dark-mode
 | `ship <feature> [-y]` | Close all task work items + close the epic + archive the OpenSpec change. |
 | `help-table [topic]` | Context-aware command reference grouped by workflow phase. |
 
-Every command appends a JSONL entry (secrets scrubbed) to `.openspecpm/audit.log`.
+Every CLI invocation appends a JSONL entry (secrets scrubbed) to `.openspecpm/audit.log`.
 
 ## Workflow phases
 
