@@ -24,11 +24,25 @@ export async function notify({ config, title, body, level = 'info', fetchImpl = 
   const errors = [];
   for (const t of targets) {
     try {
-      await fetchImpl(t.url, {
+      const res = await fetchImpl(t.url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formatPayload(t.kind, { title, body, level })),
       });
+      // A 401/403/500 from Slack/Teams reaches the network but the message
+      // never lands. Without this check, those would be counted as `sent`,
+      // and a user running `standup --broadcast` would think their channel
+      // got the update when the webhook silently rejected it.
+      if (!res?.ok) {
+        const status = res?.status ?? '?';
+        const statusText = res?.statusText ?? '';
+        let snippet = '';
+        try {
+          snippet = (await res.text()).slice(0, 200);
+        } catch { /* res.text() failed; ignore */ }
+        errors.push({ target: t.kind, error: `HTTP ${status} ${statusText}${snippet ? ` — ${snippet}` : ''}` });
+        continue;
+      }
       sent++;
     } catch (err) {
       errors.push({ target: t.kind, error: err.message });

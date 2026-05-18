@@ -62,3 +62,18 @@ test('failures across targets are collected without throwing', async () => {
   assert.equal(r.sent, 0);
   assert.equal(r.errors.length, 2);
 });
+
+test('non-2xx response counts as error, not sent', async () => {
+  // Slack returns 403 for a revoked webhook. Previously this would have
+  // been counted as a successful send.
+  const fetchImpl = async () => new Response('invalid_token', { status: 403, statusText: 'Forbidden' });
+  const r = await notify({
+    config: { notify: { slack: 'https://hooks.slack.com/services/abc' } },
+    title: 't', body: 'b', fetchImpl,
+  });
+  assert.equal(r.sent, 0);
+  assert.equal(r.errors.length, 1);
+  assert.equal(r.errors[0].target, 'slack');
+  assert.match(r.errors[0].error, /HTTP 403/);
+  assert.match(r.errors[0].error, /invalid_token/);
+});
