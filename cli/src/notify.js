@@ -40,15 +40,24 @@ export async function notify({ config, title, body, level = 'info', fetchImpl = 
         try {
           snippet = (await res.text()).slice(0, 200);
         } catch { /* res.text() failed; ignore */ }
-        errors.push({ target: t.kind, error: `HTTP ${status} ${statusText}${snippet ? ` — ${snippet}` : ''}` });
+        errors.push({ target: t.kind, error: redactUrl(t.url, `HTTP ${status} ${statusText}${snippet ? ` — ${snippet}` : ''}`) });
         continue;
       }
       sent++;
     } catch (err) {
-      errors.push({ target: t.kind, error: err.message });
+      // Strip the webhook URL from fetch's error message before returning it.
+      // The URL is itself a bearer credential for Slack/Teams — anyone holding
+      // it can post to the channel. We don't want it surfacing in audit.log
+      // or stdout via a caller that surfaces this errors[] array.
+      errors.push({ target: t.kind, error: redactUrl(t.url, err.message ?? String(err)) });
     }
   }
   return { sent, errors };
+}
+
+function redactUrl(url, msg) {
+  if (!url || typeof msg !== 'string') return msg;
+  return msg.split(url).join('<webhook>');
 }
 
 function formatPayload(kind, { title, body, level }) {

@@ -63,6 +63,19 @@ test('failures across targets are collected without throwing', async () => {
   assert.equal(r.errors.length, 2);
 });
 
+test('error messages from fetch never carry the webhook URL (M11)', async () => {
+  const url = 'https://hooks.slack.com/services/T0/B0/abc123secret';
+  const fetchImpl = async () => { throw new Error(`fetch failed: ${url}`); };
+  const r = await notify({
+    config: { notify: { slack: url } },
+    title: 't', body: 'b', fetchImpl,
+  });
+  assert.equal(r.errors.length, 1);
+  assert.ok(!r.errors[0].error.includes('hooks.slack.com'),
+    `URL leaked in error message: ${r.errors[0].error}`);
+  assert.match(r.errors[0].error, /<webhook>/);
+});
+
 test('non-2xx response counts as error, not sent', async () => {
   // Slack returns 403 for a revoked webhook. Previously this would have
   // been counted as a successful send.
