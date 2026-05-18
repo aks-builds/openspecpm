@@ -2,6 +2,11 @@ import { Adapter, AdapterError } from './base.js';
 import { HttpClient } from '../http.js';
 import { TokenBucket } from '../ratelimit.js';
 
+// User-controlled ids (from tasks.md frontmatter) MUST be encoded before
+// interpolation into URL paths, or a value like "1/../99" can reach
+// unintended project endpoints.
+const enc = (v) => encodeURIComponent(String(v));
+
 const STATE_TO_NORMALIZED = (s) => {
   const v = (s ?? '').toLowerCase();
   if (v === 'closed') return 'closed';
@@ -109,7 +114,7 @@ export class GitLabAdapter extends Adapter {
   }
 
   async linkWorkItems(parent, child, type = 'relates_to') {
-    await this.#req('POST', `/projects/${this.#project()}/issues/${child.id}/links`, {
+    await this.#req('POST', `/projects/${this.#project()}/issues/${enc(child.id)}/links`, {
       body: {
         target_project_id: this.config.projectId,
         target_issue_iid: parent.id,
@@ -119,7 +124,7 @@ export class GitLabAdapter extends Adapter {
   }
 
   async addProgressComment(item, body) {
-    await this.#req('POST', `/projects/${this.#project()}/issues/${item.id}/notes`, {
+    await this.#req('POST', `/projects/${this.#project()}/issues/${enc(item.id)}/notes`, {
       body: { body },
     });
   }
@@ -134,18 +139,18 @@ export class GitLabAdapter extends Adapter {
     if (patch.milestoneId) body.milestone_id = patch.milestoneId;  // sprint
     if (patch.weight !== undefined) body.weight = patch.weight;     // story points
     if (!Object.keys(body).length) return;
-    await this.#req('PUT', `/projects/${this.#project()}/issues/${item.id}`, { body });
+    await this.#req('PUT', `/projects/${this.#project()}/issues/${enc(item.id)}`, { body });
   }
 
   async closeWorkItem(item, resolution) {
-    await this.#req('PUT', `/projects/${this.#project()}/issues/${item.id}`, {
+    await this.#req('PUT', `/projects/${this.#project()}/issues/${enc(item.id)}`, {
       body: { state_event: 'close' },
     });
     if (resolution) await this.addProgressComment(item, resolution);
   }
 
   async getWorkItem(item) {
-    const data = await this.#req('GET', `/projects/${this.#project()}/issues/${item.id}`);
+    const data = await this.#req('GET', `/projects/${this.#project()}/issues/${enc(item.id)}`);
     return {
       ref: { adapter: 'gitlab', id: String(data.iid), url: data.web_url },
       title: data.title,
