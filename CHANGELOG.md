@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security hardening — pass through audit findings
+
+Eleven commits addressing every HIGH / MEDIUM / LOW-with-security-impact finding from the v1.0.0 quality audit. 113/113 tests; +14 new regression tests across the touched surfaces.
+
+**HIGH severity:**
+
+- **`cli/src/http.js`** — every adapter HTTP request now bounded by `AbortSignal.timeout(timeoutMs)` (default 30s). A hung Jira / ADO / Linear / GitLab endpoint no longer wedges `sync --all` indefinitely. New test confirms the request rejects within budget, not at wall-clock max.
+- **`cli/src/adapters/azure.js`** + **`cli/src/adapters/gitlab.js`** — user-controlled `item.id` / `child.id` / `parent.id` (from `tasks.md` frontmatter, user-editable) now wrapped in `encodeURIComponent` before URL-path interpolation. Closes a path-injection vector — a typo'd `external_id: "1/../99"` no longer reaches unintended endpoints. Jira was already correct.
+- **`cli/src/tracking.js`** — `loadChange` now validates that `tasks.md` frontmatter `items:` is an array of well-shaped objects (each with a string `title`). Malformed entries are silently dropped; non-array `items:` raises a clear error with a remediation pointing at the file to repair. Malformed YAML itself raises with file context instead of crashing deep with `TypeError: items is not iterable`.
+- **`cli/src/openspec-bridge.js`** — new `assertSafeFeatureName()` rejects empty / non-string input, anything containing `..` / `/` / `\` / Windows drive letters, and anything outside `/^[a-z0-9][a-z0-9._-]*$/i`. Called at the top of `changeDir()`, `changeExists()`, and `propose()` so every entry point into the OpenSpec layout validates first. Closes path-traversal via feature name.
+- **`cli/src/commands/sync.js`** + **`cli/src/commands/bulk.js`** — `sync`, `sync --all`, and `ship --all-ready` now throw at the end if any task or change failed, instead of swallowing per-task errors and returning 0. `openspecpm sync feature && deploy` in CI no longer proceeds on silent partial sync. Per-task `last_error` still persisted to `tasks.md` frontmatter for inspection.
+- **`cli/src/notify.js`** — `fetch` response status is now checked instead of being discarded. A 401 / 403 / 500 from Slack / Teams / generic counts as an error, not a successful send. `standup --broadcast` no longer claims success when the webhook silently rejected.
+
+**MEDIUM severity:**
+
+- **`cli/tests/github-adapter.test.js`** — locked the leading-dash title behavior under array argv (M3). No code change needed; execa array-args + cobra's flag parser already handle `--title "--evil-flag"` correctly, but the regression test prevents a future refactor from breaking it.
+- **`cli/src/audit.js`** — `SECRET_SEGMENTS` extended to include `bearer`, `cookie`, `session`, `webhook`, `signature`, `assertion`. New `scrubValue()` redacts webhook URLs from any string value (Slack hooks, MS Teams connectors, M365 webhooks). `record()`'s `result` and `error` fields now also go through `scrubValue`. **`cli/src/notify.js`** sanitizes its `target.url` from every error message at the source. Two-layer defense: the URL can't leak from notify's error path, and even if some other code path puts a webhook URL in an audit entry, the sink redacts it. (M6 + M11 + LOW-4)
+- **`cli/bin/openspecpm.js`** — installed `uncaughtException` and `unhandledRejection` handlers that print sanitized message + remediation + a pointer to `audit.log`. A future programming bug (TypeError, etc.) no longer dumps Node's default stack trace with absolute install / tmp paths to stderr. (M8)
+- **`cli/src/commands/sync.js`** — `extractSummary` now strips C0/C1 control chars (except TAB/LF/CR), DEL, zero-width / joiner chars, bidi overrides (LRE/RLE/PDF/LRO/RLO), and isolates (LRI/RLI/FSI/PDI) before sending the proposal body to the remote tracker as the epic description. Closes homograph / hidden-content vector in issue titles and bodies. (M9)
+
+**LOW severity (defense-in-depth):**
+
+- **`cli/src/adapters/azure.js`** — `listWorkItems` now allowlist-validates the WIQL `tag` against `/^[a-zA-Z0-9._:-]+$/`. Single-quote doubling escape already handled the only known WIQL string-literal breakout, but allowlist validation is more robust than escape-based protection. (LOW-1)
+
 ### Post-1.0 doc sweep
 
 - **README.md:** lede tagline + flow Mermaid + "differences from CCPM" section now reference all five PM backends (GitHub, Azure DevOps, Jira, **Linear, GitLab**) instead of the original three. The "three differences" framing bumped to five — added bullets for audit-log-by-default and cross-feature task graphs, with the LLM judge folded into the BDD-authoring bullet.
