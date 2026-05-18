@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-05-18
+
 ### Fix — release.yml must use a user-owned PAT, not GITHUB_TOKEN
 
 - `.github/workflows/release.yml`: switched the branch push and `gh pr create` from `secrets.GITHUB_TOKEN` to `secrets.RELEASE_PR_PAT`. **Why:** GitHub by design suppresses downstream workflow runs from events triggered by `GITHUB_TOKEN` (anti-recursion safeguard). With `GITHUB_TOKEN`, the auto-opened release PR's `pull_request: opened` event never reaches `auto-approve.yml` or `test.yml` — the PR sits forever waiting for an approval and a status check that will never report. A user-owned PAT is not subject to this rule. `CONTRIBUTING.md` § Releasing updated with the new required repo secret.
