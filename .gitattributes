@@ -1,0 +1,15 @@
+# Normalize text files to LF in the repo regardless of the contributor's
+# git autocrlf setting. Stops the "LF will be replaced by CRLF the next
+# time Git touches it" noise that every Windows commit was producing.
+* text=auto eol=lf
+
+# Binary assets - never touch line endings.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tgz binary
