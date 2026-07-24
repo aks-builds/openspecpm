@@ -6,6 +6,8 @@
 
 > Spec-driven, BDD-shaped project management for AI agents — author once in [OpenSpec](https://github.com/Fission-AI/OpenSpec), sync to GitHub Issues, Azure DevOps Boards, Jira, Linear, or GitLab.
 
+<img src=".github/media/how-it-works.png" width="900" alt="How openspecpm works: natural-language intent flows through OpenSpec proposals and BDD specs, a human-review + lint gate, fan-out sync to GitHub/Azure DevOps/Jira/Linear/GitLab, agent execution and tracking, to ship" />
+
 OpenSpecPM turns natural-language intent ("plan X", "sync the X epic", "what's blocked", "ship X") into a disciplined flow:
 
 ```mermaid
