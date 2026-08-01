@@ -59,7 +59,7 @@ jobs:
           # would suppress them per GitHub's anti-recursion rule.
           token: ${{ secrets.RELEASE_PR_PAT }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
 
